@@ -41,6 +41,9 @@
     "eslint": "^7.32.0",
     "eslint-config-prettier": "8.3.0",
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> add npm-run-all
     "husky": "^7.0.0",
     "npm-run-all": "^4.1.5",
     "prettier": "2.4.1",
@@ -51,6 +54,7 @@
 >>>>>>> introduce eslint and prettier
     "ts-node": "^10.2.1",
     "ts-node-dev": "^1.1.8",
+<<<<<<< HEAD
 <<<<<<< HEAD
     "typescript": "^4.4.3"
   },
@@ -65,5 +69,8 @@
     "typescript": "^4.4.3",
     "husky": "^7.0.0"
 >>>>>>> add husky
+=======
+    "typescript": "^4.4.3"
+>>>>>>> add npm-run-all
   }
 }
