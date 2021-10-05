@@ -8,9 +8,10 @@
     "start": "npx tsc && node dist/index.js",
     "debug": "npx ts-node-dev src/index.ts",
     "check-types": "tsc --noEmit",
+    "check-format": "prettier --check src/**/*.{js,ts,json}",
     "eslint": "eslint src/**/*.ts",
-    "format": "prettier --write 'src/**/*.{js,ts,json}'",
-    "lint": "npm-run-all eslint check-types",
+    "format": "prettier --write src/**/*.{js,ts,json}",
+    "lint": "npm-run-all eslint check-format check-types",
     "prepare": "husky install"
   },
   "keywords": [],
