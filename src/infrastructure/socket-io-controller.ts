@@ -1,79 +1,82 @@
-import { Server, Socket } from "socket.io";
-import { PORT } from "../config/port";
+import { Server, Socket } from 'socket.io';
 
 interface SocketEvent {
-    name: string
+    name: string;
 }
 
 interface EventRegistration<Response> {
-    event: SocketEvent
-    handler: (data: Response) => void
+    event: SocketEvent;
+    handler: (data: Response) => void;
 }
 
 class SocketIOController {
-    private io: Server
-    private sockets: Socket[]
+    private io: Server;
+    private sockets: Socket[];
 
     constructor(io: Server) {
-        this.io = io
-        this.sockets = []
+        this.io = io;
+        this.sockets = [];
     }
 
-    register<Response>(listener: Socket | Server, registration: EventRegistration<Response>) {
+    register<Response>(
+        listener: Socket | Server,
+        registration: EventRegistration<Response>
+    ) {
         listener.on(registration.event.name, (data: Response) => {
-            registration.handler(data)
-        })
+            registration.handler(data);
+        });
     }
 
     onConnection(handler: () => void) {
         const registration: EventRegistration<Socket> = {
             event: {
-                name: "connection"
+                name: 'connection',
             },
             handler: (socket) => {
-                this.sockets.push(socket)
-            }
-        }
-        this.register(this.io, registration)
+                this.sockets.push(socket);
+                handler();
+            },
+        };
+        this.register(this.io, registration);
     }
 
     onDisconnect(handler: () => void) {
         const registration: EventRegistration<void> = {
             event: {
-                name: "disconnect"
+                name: 'disconnect',
             },
-            handler: handler
-        }
-        this.register(this.io, registration)
+            handler: handler,
+        };
+        this.register(this.io, registration);
     }
 
     getSocket(id: string): Socket | null {
-        const socket = this.sockets.find((socket) => socket.id === id)
+        const socket = this.sockets.find((socket) => socket.id === id);
         if (!socket) {
-            return null
+            return null;
         }
-        return socket
+        return socket;
     }
 
     send<Data>(sender: Socket, event: SocketEvent, data: Data): boolean {
-        return sender.emit(event.name, [data])
+        return sender.emit(event.name, [data]);
     }
 
     broadcast<Data>(sender: Socket, event: SocketEvent, data: Data): boolean {
-        return sender.broadcast.emit(event.name, [data])
+        return sender.broadcast.emit(event.name, [data]);
     }
 
     async joinRoom(name: string, newcomer: Socket) {
-        await newcomer.join(name)
+        await newcomer.join(name);
     }
 
     releaseRoom(name: string) {
-        this.io.socketsLeave(name)
+        this.io.socketsLeave(name);
     }
 
     async leaveRoom(socket: Socket, name: string) {
-        await socket.leave(name)
+        await socket.leave(name);
     }
 }
 
-export { SocketIOController, SocketEvent, EventRegistration }
+export { SocketIOController, SocketEvent, EventRegistration };
