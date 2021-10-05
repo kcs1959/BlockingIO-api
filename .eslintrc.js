@@ -18,9 +18,12 @@ module.exports = {
 		'plugin:@typescript-eslint/recommended',
 		'prettier',
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         'prettier/@typescript-eslint',
 >>>>>>> introduce eslint and prettier
+=======
+>>>>>>> fix
 	],
 	"env": {
 		"es6": true,
