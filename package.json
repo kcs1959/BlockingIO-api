@@ -6,13 +6,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx tsc && node dist/index.js",
-    "debug": "npx ts-node-dev src/index.ts"
+    "debug": "npx ts-node-dev src/index.ts",
+    "check-types": "tsc --noEmit",
+    "eslint": "eslint src/**/*.ts",
+    "format": "prettier --write 'src/**/*.{js,ts,json}'",
+    "lint": "npm-run-all eslint check-types"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^16.10.2",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "prettier": "2.4.1",
     "ts-node": "^10.2.1",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.4.3"
