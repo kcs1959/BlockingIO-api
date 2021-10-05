@@ -9,6 +9,7 @@
     "debug": "npx ts-node-dev src/index.ts",
     "check-types": "tsc --noEmit",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "check-format": "prettier --check src/**/*.{js,ts,json}",
     "eslint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.{js,ts,json}",
@@ -22,6 +23,12 @@
 >>>>>>> introduce eslint and prettier
 =======
     "lint": "npm-run-all eslint check-types",
+=======
+    "check-format": "prettier --check src/**/*.{js,ts,json}",
+    "eslint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.{js,ts,json}",
+    "lint": "npm-run-all eslint check-format check-types",
+>>>>>>> add prettier check before pushing
     "prepare": "husky install"
 >>>>>>> add husky
   },
