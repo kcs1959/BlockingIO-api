@@ -1,0 +1,16 @@
+# 参考: https://qiita.com/Yoshimizu-Yuuki/items/77d16390b3ea1bac63e1#%E3%81%A8%E3%82%8A%E3%81%82%E3%81%88%E3%81%9Adocker-composer%E6%9B%B8%E3%81%8F
+version: '3.7'
+
+services:
+    db:
+        image: postgres:12-alpine
+        environment:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_DB: postgres
+            DATABASE_HOST: localpg
+            PGDATA: /tmp
+        ports:
+            - '5431:5432'
+        volumes:
+            - ./migration:/docker-entrypoint-initdb.d
