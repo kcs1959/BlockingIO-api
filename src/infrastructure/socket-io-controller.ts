@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Server, Socket } from 'socket.io';
 
 interface SocketEvent {
@@ -29,35 +30,47 @@ class SocketIOController {
 =======
 import { Server, Socket } from "socket.io";
 import { PORT } from "../config/port";
+=======
+import { Server, Socket } from 'socket.io';
+>>>>>>> format and fix (#10)
 
 interface SocketEvent {
-    name: string
+    name: string;
 }
 
 interface EventRegistration<Response> {
-    event: SocketEvent
-    handler: (data: Response) => void
+    event: SocketEvent;
+    handler: (data: Response) => void;
 }
 
 class SocketIOController {
-    private io: Server
-    private sockets: Socket[]
+    private io: Server;
+    private sockets: Socket[];
 
     constructor(io: Server) {
-        this.io = io
-        this.sockets = []
+        this.io = io;
+        this.sockets = [];
     }
 
-    register<Response>(listener: Socket | Server, registration: EventRegistration<Response>) {
+    register<Response>(
+        listener: Socket | Server,
+        registration: EventRegistration<Response>
+    ) {
         listener.on(registration.event.name, (data: Response) => {
+<<<<<<< HEAD
             registration.handler(data)
         })
 >>>>>>> Implement socket.io infra (#8)
+=======
+            registration.handler(data);
+        });
+>>>>>>> format and fix (#10)
     }
 
     onConnection(handler: () => void) {
         const registration: EventRegistration<Socket> = {
             event: {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 name: 'connection',
             },
@@ -76,11 +89,22 @@ class SocketIOController {
         }
         this.register(this.io, registration)
 >>>>>>> Implement socket.io infra (#8)
+=======
+                name: 'connection',
+            },
+            handler: (socket) => {
+                this.sockets.push(socket);
+                handler();
+            },
+        };
+        this.register(this.io, registration);
+>>>>>>> format and fix (#10)
     }
 
     onDisconnect(handler: () => void) {
         const registration: EventRegistration<void> = {
             event: {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 name: 'disconnect',
             },
@@ -121,40 +145,47 @@ class SocketIOController {
 export { SocketIOController, SocketEvent, EventRegistration };
 =======
                 name: "disconnect"
+=======
+                name: 'disconnect',
+>>>>>>> format and fix (#10)
             },
-            handler: handler
-        }
-        this.register(this.io, registration)
+            handler: handler,
+        };
+        this.register(this.io, registration);
     }
 
     getSocket(id: string): Socket | null {
-        const socket = this.sockets.find((socket) => socket.id === id)
+        const socket = this.sockets.find((socket) => socket.id === id);
         if (!socket) {
-            return null
+            return null;
         }
-        return socket
+        return socket;
     }
 
     send<Data>(sender: Socket, event: SocketEvent, data: Data): boolean {
-        return sender.emit(event.name, [data])
+        return sender.emit(event.name, [data]);
     }
 
     broadcast<Data>(sender: Socket, event: SocketEvent, data: Data): boolean {
-        return sender.broadcast.emit(event.name, [data])
+        return sender.broadcast.emit(event.name, [data]);
     }
 
     async joinRoom(name: string, newcomer: Socket) {
-        await newcomer.join(name)
+        await newcomer.join(name);
     }
 
     releaseRoom(name: string) {
-        this.io.socketsLeave(name)
+        this.io.socketsLeave(name);
     }
 
     async leaveRoom(socket: Socket, name: string) {
-        await socket.leave(name)
+        await socket.leave(name);
     }
 }
 
+<<<<<<< HEAD
 export { SocketIOController, SocketEvent, EventRegistration }
 >>>>>>> Implement socket.io infra (#8)
+=======
+export { SocketIOController, SocketEvent, EventRegistration };
+>>>>>>> format and fix (#10)
