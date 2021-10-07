@@ -23,7 +23,7 @@ class SocketIOController {
     register<Response>(
         listener: Socket | Server,
         registration: EventRegistration<Response>
-    ) {
+    ): void {
         listener.on(registration.event.name, (data: Response) => {
             registration.handler(data);
         });
@@ -67,7 +67,7 @@ class SocketIOController {
 >>>>>>> format and fix (#10)
     }
 
-    onConnection(handler: () => void) {
+    onConnection(handler: () => void): void {
         const registration: EventRegistration<Socket> = {
             event: {
 <<<<<<< HEAD
@@ -101,7 +101,7 @@ class SocketIOController {
 >>>>>>> format and fix (#10)
     }
 
-    onDisconnect(handler: () => void) {
+    onDisconnect(handler: () => void): void {
         const registration: EventRegistration<void> = {
             event: {
 <<<<<<< HEAD
@@ -170,15 +170,15 @@ export { SocketIOController, SocketEvent, EventRegistration };
         return sender.broadcast.emit(event.name, [data]);
     }
 
-    async joinRoom(name: string, newcomer: Socket) {
+    async joinRoom(name: string, newcomer: Socket): Promise<void> {
         await newcomer.join(name);
     }
 
-    releaseRoom(name: string) {
+    releaseRoom(name: string): void {
         this.io.socketsLeave(name);
     }
 
-    async leaveRoom(socket: Socket, name: string) {
+    async leaveRoom(socket: Socket, name: string): Promise<void> {
         await socket.leave(name);
     }
 }
