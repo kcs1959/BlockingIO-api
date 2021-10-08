@@ -1,2 +1,2 @@
-const helloWorld = () => "Hello World"
-console.log(helloWorld())
+const helloWorld = () => 'Hello World';
+console.log(helloWorld());
