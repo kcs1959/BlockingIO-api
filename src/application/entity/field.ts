@@ -1,8 +1,8 @@
 export class Field {
   public length: number;
   public square: number[][];
-  constructor() {
-    this.length = 1;
-    this.square
-  }
+   constructor(square: number[][]) {
+      this.square = square;
+      this.length = 1;
+   }
 }
