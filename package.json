@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx tsc && node dist/index.js",
-    "debug": "npx ts-node-dev src/index.ts",
+    "start": "docker-compose up -d && npx tsc && node dist/index.js",
+    "debug": "docker-compose up -d && npx ts-node-dev src/index.ts",
     "check-types": "tsc --noEmit",
     "check-format": "prettier --check src/**/*.{js,ts,json}",
     "eslint": "eslint src/**/*.ts",
@@ -19,9 +19,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^16.10.2",
-<<<<<<< HEAD
     "@types/uuid": "^8.3.1",
-=======
+    "@types/pg": "^8.6.1",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.32.0",
@@ -30,17 +29,15 @@
     "npm-run-all": "^4.1.5",
     "prettier": "2.4.1",
     "@types/socket.io": "^3.0.2",
->>>>>>> e1a9e07c6fdf3446fb61d9bebe126e8bc59facd0
     "ts-node": "^10.2.1",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.4.3"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "uuid": "^8.3.2"
-=======
+    "uuid": "^8.3.2",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "pg": "^8.7.1",
     "socket.io": "^4.2.0"
->>>>>>> e1a9e07c6fdf3446fb61d9bebe126e8bc59facd0
   }
 }
