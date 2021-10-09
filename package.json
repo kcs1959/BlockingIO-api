@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "docker-compose up -d && npx tsc && node dist/index.js",
-    "debug": "docker-compose up -d && npx ts-node-dev src/index.ts",
+    "start": "npm-run-all start-db start-api",
+    "debug": "npm-run-all start-db debug-api",
+    "start-db": "docker-compose down && docker-compose up -d",
+    "start-api": "npx tsc && node dist/index.js",
+    "debug-api": "npx ts-node-dev src/index.ts",
     "check-types": "tsc --noEmit",
     "check-format": "prettier --check src/**/*.{js,ts,json}",
     "eslint": "eslint src/**/*.ts",
