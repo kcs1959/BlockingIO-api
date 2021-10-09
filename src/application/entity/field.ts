@@ -17,7 +17,7 @@ export class Field {
         };
         */
 
-        this.square = square
+        this.square = square;
         this.length = 1;
     }
 }
