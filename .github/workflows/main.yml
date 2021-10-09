@@ -2,7 +2,11 @@ name: Build and Check Format
 
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  push:
+    branches: 
+      - main
 
 jobs:
   build_and_lint:
