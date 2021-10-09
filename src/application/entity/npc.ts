@@ -1,8 +1,10 @@
+import { Position } from './position';
+
 export class Npc {
-    public position: { x: number; y: number };
+    public position: Position;
     public name: string;
-    constructor(name: string) {
-        this.position = { x: 0, y: 0 };
+    constructor(name: string, position: Position) {
+        this.position = position;
         this.name = name;
     }
 }
