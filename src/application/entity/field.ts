@@ -1,23 +1,16 @@
+import { Square } from './square';
+
 export class Field {
     public length: number;
-    public square: number[][];
+    public squares: Square[][];
     constructor(length: number) {
-        const square = new Array(length);
+        this.length = length;
+        this.squares = [];
         for (let i = 0; i < length; i++) {
-            square[i] = new Array(length).fill(0);
+            this.squares[i] = [];
+            for (let j = 0; j < length; j++) {
+                this.squares[i][j] = new Square();
+            }
         }
-
-        /*
-        const square2 = (length: number): number[][] => {
-            return Array.from(new Array(length), _ => new Array(length).fill(0));
-        };
-
-        const square3 = (length: number): number[][] => {
-            return [...Array(length)].map(() => Array(length).fill(0));
-        };
-        */
-
-        this.square = square;
-        this.length = 1;
     }
 }
