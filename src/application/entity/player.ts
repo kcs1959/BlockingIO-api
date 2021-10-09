@@ -1,17 +1,17 @@
 type PlayerStatus = 'alive' | 'dead';
 
+import { Position } from './position';
+
 import { User } from './user';
 
-const user = new User('username');
-
 export class Player {
-    public position: { x: number; y: number };
+    public position: Position;
     public point: number;
     public uid: string;
     public username: string;
     public status: PlayerStatus;
-    constructor() {
-        this.position = { x: 0, y: 0 };
+    constructor(user: User, position: Position) {
+        this.position = position;
         this.point = 0;
         this.uid = user.uid;
         this.username = user.uid;
