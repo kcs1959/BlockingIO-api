@@ -8,7 +8,7 @@
     "start": "npm-run-all start-db start-api",
     "debug": "npm-run-all start-db debug-api",
     "start-db": "docker-compose down && docker-compose up -d",
-    "start-api": "npx tsc && node dist/index.js",
+    "start-api": "npx tsc && node dist/src/index.js",
     "debug-api": "npx ts-node-dev src/index.ts",
     "check-types": "tsc --noEmit",
     "check-format": "prettier --check src/**/*.{js,ts,json}",
@@ -26,7 +26,11 @@
     "@types/node": "^16.10.2",
     "@types/pg": "^8.6.1",
     "@types/socket.io": "^3.0.2",
+<<<<<<< HEAD
     "@types/uuid": "^8.3.1",
+=======
+    "@types/swagger-ui-express": "^4.1.3",
+>>>>>>> done
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.32.0",
@@ -45,6 +49,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "pg": "^8.7.1",
-    "socket.io": "^4.2.0"
+    "socket.io": "^4.2.0",
+    "swagger-ui-express": "^4.1.6"
   }
 }
