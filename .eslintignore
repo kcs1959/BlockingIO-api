@@ -6,4 +6,4 @@ dist
 coverage
 
 # ignore config files
-*.config.ts
+jest.config.ts
