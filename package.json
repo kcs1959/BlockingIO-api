@@ -16,7 +16,7 @@
     "format": "prettier --write src/**/*.{js,ts,json}",
     "lint": "npm-run-all eslint check-format check-types",
     "prepare": "husky install",
-    "update-api-document": "npx swagger-cli bundle --outfile ./src/routes/docs.json && ./scripts/overwrite-api-document.bash",
+    "update-api-document": "npx swagger-cli bundle --outfile ./src/routes/docs.json ./docs/api.yaml && ./scripts/overwrite-api-document.bash",
     "build": "npx tsc"
   },
   "keywords": [],
