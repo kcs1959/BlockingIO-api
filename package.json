@@ -8,7 +8,7 @@
     "start": "npm-run-all start-db start-api",
     "debug": "npm-run-all start-db debug-api",
     "start-db": "docker-compose down && docker-compose up -d",
-    "start-api": "npx tsc && node dist/src/index.js",
+    "start-api": "npx tsc && node dist/index.js",
     "debug-api": "npx ts-node-dev src/index.ts",
     "check-types": "tsc --noEmit",
     "check-format": "prettier --check src/**/*.{js,ts,json}",
@@ -16,6 +16,7 @@
     "format": "prettier --write src/**/*.{js,ts,json}",
     "lint": "npm-run-all eslint check-format check-types",
     "prepare": "husky install",
+    "update-api-document": "npx swagger-cli bundle --outfile ./src/routes/docs.json && ./scripts/overwrite-api-document.bash",
     "build": "npx tsc"
   },
   "keywords": [],
