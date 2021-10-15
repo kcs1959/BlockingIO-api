@@ -4,7 +4,8 @@ module.exports = {
 	parserOptions: {
 		project: [
 			'./tsconfig.json',
-			'./tsconfig.eslint.json'
+			'./tsconfig.eslint.json',
+			'./test-client/tsconfig.json'
 		],
 		sourceType: 'module',
 		tsconfigRootDir: __dirname,

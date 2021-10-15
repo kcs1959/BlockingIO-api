@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prepare": "husky install",    
-    
+    "prepare": "husky install",
     "check-types": "tsc --noEmit",
     "check-format": "run-script-os",
     "check-format:nix": "prettier --check 'src/**/*.{js,ts,json}'",
@@ -17,9 +16,8 @@
     "format:nix": "prettier --write 'src/**/*.{js,ts,json}'",
     "format:win32": "prettier --write src/**/*.{js,ts,json}",
     "lint": "run-script-os",
-    "lint:nix": "npm-run-all eslint:nix check-format:nix check-types",    
-    "lint:win32": "npm-run-all eslint:win32 check-format:win32 check-types",    
-
+    "lint:nix": "npm-run-all eslint:nix check-format:nix check-types",
+    "lint:win32": "npm-run-all eslint:win32 check-format:win32 check-types",
     "start-db": "docker-compose down && docker-compose up -d",
     "start-api": "npx tsc && node dist/index.js",
     "debug-api": "npx ts-node-dev src/index.ts",
@@ -27,7 +25,6 @@
     "start": "npm-run-all start-db start-api",
     "debug": "npm-run-all start-db debug-api",
     "test": "jest",
-
     "update-api-document": "npx swagger-cli bundle --outfile ./src/routes/docs.json ./docs/api.yaml && ./scripts/overwrite-api-document.bash"
   },
   "keywords": [],
