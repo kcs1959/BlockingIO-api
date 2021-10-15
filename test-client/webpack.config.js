@@ -1,7 +1,7 @@
 module.exports = [{
     mode: 'development',
     entry: {
-        client: './src/test-client/index.ts',
+        client: './src/index.ts',
     },
     output: {
         filename: '[name].js',
