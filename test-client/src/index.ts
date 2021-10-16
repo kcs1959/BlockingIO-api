@@ -1,8 +1,5 @@
-import { io, Socket } from 'socket.io-client';
-import {
-    fulfillRoomEvent,
-    joinRoomEvent,
-} from '../../src/routes/socket-events';
+import { io } from 'socket.io-client';
+import { fulfillRoomEvent } from '../../src/routes/socket-events';
 import { joinRoom } from './rooms/room';
 const socket = io();
 
@@ -51,10 +48,6 @@ socket.on('field', (field: FieldData) => {
             .map((row) => row.join(''))
             .join('<br>');
     }
-});
-
-socket.on(joinRoomEvent.name, (roomName) => {
-    console.log(`${roomName}に入りました`);
 });
 
 socket.on(fulfillRoomEvent.name, (room) => {
