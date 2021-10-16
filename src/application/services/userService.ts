@@ -1,10 +1,10 @@
-import { ISocketIOController } from '../../infrastructure/socket-io-controller';
+import { ISocketIOController } from '../../infrastructure/socketIOController';
 import {
     addNewRoomMemberEvent,
     fulfillRoomEvent,
-} from '../../routes/socket-events';
-import { IUserRepository } from '../repositories/user_repository';
-import { IRoomRepository } from '../repositories/room_repository';
+} from '../../routes/socketEvents';
+import { IUserRepository } from '../repositories/userRepository';
+import { IRoomRepository } from '../repositories/roomRepository';
 import { Room } from '../model/room';
 
 interface IUserService {

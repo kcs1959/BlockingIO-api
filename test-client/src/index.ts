@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { fulfillRoomEvent } from '../../src/routes/socket-events';
+import { fulfillRoomEvent } from '../../src/routes/socketEvents';
 import { joinRoom } from './rooms/room';
 const socket = io();
 

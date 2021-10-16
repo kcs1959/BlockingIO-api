@@ -6,7 +6,7 @@ import * as config from './config/config';
 import {
     EventRegistration,
     SocketIOController,
-} from './infrastructure/socketIoController';
+} from './infrastructure/socketIOController';
 import * as socketio from 'socket.io';
 import { createServer } from 'http';
 import { IUserService, UserService } from './application/services/userService';

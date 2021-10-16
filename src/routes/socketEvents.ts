@@ -1,4 +1,4 @@
-import { SocketEvent } from '../infrastructure/socketIoController';
+import { SocketEvent } from '../infrastructure/socketIOController';
 
 const joinRoomEvent: SocketEvent = {
     name: 'join-room',
