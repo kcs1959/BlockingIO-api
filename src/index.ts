@@ -6,24 +6,24 @@ import * as config from './config/config';
 import {
     EventRegistration,
     SocketIOController,
-} from './infrastructure/socket-io-controller';
+} from './infrastructure/socketIoController';
 import * as socketio from 'socket.io';
 import { createServer } from 'http';
-import { IUserService, UserService } from './application/services/user-service';
-import { joinRoomEvent } from './routes/socket-events';
+import { IUserService, UserService } from './application/services/userService';
+import { joinRoomEvent } from './routes/socketEvents';
 import {
     onConnectionEvent,
     onDisconnectEvent,
     onJoinRoomEvent,
-} from './routes/socket-events-handler';
+} from './routes/socketEventsHandler';
 import {
     IUserRepository,
     UserRepository,
-} from './application/repositories/user_repository';
+} from './application/repositories/userRepository';
 import {
     IRoomRepository,
     RoomRepository,
-} from './application/repositories/room_repository';
+} from './application/repositories/roomRepository';
 
 // .envから環境変数を読み込み
 dotenv.config();
