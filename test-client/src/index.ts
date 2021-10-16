@@ -1,5 +1,12 @@
 import { io } from 'socket.io-client';
+import { fulfillRoomEvent } from '../../src/routes/socketEvents';
+import { joinRoom } from './rooms/room';
 const socket = io();
+
+const joinRoomButton = document.getElementById('joinRoomButton');
+joinRoomButton?.addEventListener('click', () => {
+    joinRoom(socket);
+});
 
 const fieldArea: HTMLElement | null = document.getElementById('field');
 
@@ -27,8 +34,12 @@ interface FieldData {
     squares: string[][];
 }
 
-socket.on('connected', (me: string) => {
-    console.log(`your Avatar is ${me}`);
+socket.on('connect', (): void => {
+    console.log('connect');
+});
+
+socket.on('disconnect', (): void => {
+    console.log('disconnect');
 });
 
 socket.on('field', (field: FieldData) => {
@@ -37,4 +48,9 @@ socket.on('field', (field: FieldData) => {
             .map((row) => row.join(''))
             .join('<br>');
     }
+});
+
+socket.on(fulfillRoomEvent.name, (room) => {
+    const message = JSON.stringify(room);
+    console.log(`${message}にて参加メンバーが揃いました`);
 });

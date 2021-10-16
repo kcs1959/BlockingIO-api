@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BASE_PATH=./src/routes/docs-base.ts
+BASE_PATH=./src/routes/docsBase.ts
 INPUT_PATH=./src/routes/docs.json
 OUTPUT_PATH=./src/routes/docs.ts
 

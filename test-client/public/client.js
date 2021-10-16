@@ -100,6 +100,17 @@ eval("/**\n * Parses an URI\n *\n * @author Steven Levithan <stevenlevithan.com>
 
 /***/ }),
 
+/***/ "../src/routes/socket-events.ts":
+/*!**************************************!*\
+  !*** ../src/routes/socket-events.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.findAvailableRoomEvent = exports.fulfillRoomEvent = exports.addNewRoomMemberEvent = exports.joinRoomEvent = void 0;\nconst joinRoomEvent = {\n    name: 'join-room',\n};\nexports.joinRoomEvent = joinRoomEvent;\nconst addNewRoomMemberEvent = {\n    name: 'add-new-room-member',\n};\nexports.addNewRoomMemberEvent = addNewRoomMemberEvent;\nconst fulfillRoomEvent = {\n    name: 'fulfill-room-event',\n};\nexports.fulfillRoomEvent = fulfillRoomEvent;\nconst findAvailableRoomEvent = {\n    name: 'find-available-room',\n};\nexports.findAvailableRoomEvent = findAvailableRoomEvent;\n\n\n//# sourceURL=webpack://test-client/../src/routes/socket-events.ts?");
+
+/***/ }),
+
 /***/ "./src/index.ts":
 /*!**********************!*\
   !*** ./src/index.ts ***!
@@ -107,7 +118,18 @@ eval("/**\n * Parses an URI\n *\n * @author Steven Levithan <stevenlevithan.com>
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\r\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\r\nconst socket_io_client_1 = __webpack_require__(/*! socket.io-client */ \"./node_modules/socket.io-client/build/cjs/index.js\");\r\nconst socket = (0, socket_io_client_1.io)();\r\nconst form = document.querySelector('form');\r\nconst input = document.querySelector('input');\r\nconst ul = document.querySelector('ul');\r\nconst fieldArea = document.getElementById('field');\r\nif (fieldArea) {\r\n    fieldArea.innerHTML = Array(33).join(Array(33).join('０') + '<br>');\r\n}\r\nconsole.log(form, input, ul);\r\nform?.addEventListener('submit', (e) => {\r\n    if (!input)\r\n        return;\r\n    e.preventDefault();\r\n    socket.emit('message', input.value);\r\n    input.value = '';\r\n});\r\ndocument.body.addEventListener('keydown', (event) => {\r\n    if (event.key === 'w') {\r\n        console.log('w');\r\n        socket.emit('move', 'up');\r\n    }\r\n    else if (event.key === 'a') {\r\n        console.log('a');\r\n        socket.emit('move', 'left');\r\n    }\r\n    else if (event.key === 's') {\r\n        console.log('s');\r\n        socket.emit('move', 'down');\r\n    }\r\n    else if (event.key === 'd') {\r\n        console.log('d');\r\n        socket.emit('move', 'right');\r\n    }\r\n});\r\nsocket.on('connected', (me) => {\r\n    console.log(`your Avatar is ${me}`);\r\n});\r\nsocket.on('field', (field) => {\r\n    if (fieldArea) {\r\n        fieldArea.innerHTML = field.squares\r\n            .map((row) => row.join(''))\r\n            .join('<br>');\r\n    }\r\n});\r\n\n\n//# sourceURL=webpack://test-client/./src/index.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst socket_io_client_1 = __webpack_require__(/*! socket.io-client */ \"./node_modules/socket.io-client/build/cjs/index.js\");\nconst socket_events_1 = __webpack_require__(/*! ../../src/routes/socket-events */ \"../src/routes/socket-events.ts\");\nconst room_1 = __webpack_require__(/*! ./rooms/room */ \"./src/rooms/room.ts\");\nconst socket = (0, socket_io_client_1.io)();\nconst joinRoomButton = document.getElementById('joinRoomButton');\njoinRoomButton?.addEventListener('click', () => {\n    (0, room_1.joinRoom)(socket);\n});\nconst fieldArea = document.getElementById('field');\nif (fieldArea) {\n    fieldArea.innerHTML = Array(33).join(Array(33).join('０') + '<br>');\n}\ndocument.body.addEventListener('keydown', (event) => {\n    if (event.key === 'w') {\n        console.log('w');\n        socket.emit('move', 'up');\n    }\n    else if (event.key === 'a') {\n        console.log('a');\n        socket.emit('move', 'left');\n    }\n    else if (event.key === 's') {\n        console.log('s');\n        socket.emit('move', 'down');\n    }\n    else if (event.key === 'd') {\n        console.log('d');\n        socket.emit('move', 'right');\n    }\n});\nsocket.on('connect', () => {\n    console.log('connect');\n});\nsocket.on('disconnect', () => {\n    console.log('disconnect');\n});\nsocket.on('field', (field) => {\n    if (fieldArea) {\n        fieldArea.innerHTML = field.squares\n            .map((row) => row.join(''))\n            .join('<br>');\n    }\n});\nsocket.on(socket_events_1.joinRoomEvent.name, (roomName) => {\n    console.log(`${roomName}に入りました`);\n});\nsocket.on(socket_events_1.fulfillRoomEvent.name, (room) => {\n    const message = JSON.stringify(room);\n    console.log(`${message}にて参加メンバーが揃いました`);\n});\n\n\n//# sourceURL=webpack://test-client/./src/index.ts?");
+
+/***/ }),
+
+/***/ "./src/rooms/room.ts":
+/*!***************************!*\
+  !*** ./src/rooms/room.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.joinRoom = void 0;\nconst events = __webpack_require__(/*! ../../../src/routes/socket-events */ \"../src/routes/socket-events.ts\");\nconst joinRoom = (socket) => {\n    socket.emit(events.joinRoomEvent.name, socket.id);\n};\nexports.joinRoom = joinRoom;\n\n\n//# sourceURL=webpack://test-client/./src/rooms/room.ts?");
 
 /***/ }),
 
