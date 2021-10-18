@@ -24,6 +24,7 @@ import {
     IRoomRepository,
     RoomRepository,
 } from './application/repositories/roomRepository';
+import { GameService, IGameService } from './application/services/gameService';
 
 // .envから環境変数を読み込み
 dotenv.config();
@@ -46,8 +47,9 @@ const userService: IUserService = new UserService(
     userRepository,
     roomRepository
 );
+const gameService: IGameService = new GameService(socketIOController);
 
-export { userRepository, userService };
+export { userRepository, userService, gameService };
 
 socketIOController.onConnection((socket) => {
     console.log('Connection ok');

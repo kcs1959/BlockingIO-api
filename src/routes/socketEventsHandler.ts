@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import { userRepository, userService } from '..';
+import { userRepository, userService, gameService } from '..';
 import { User } from '../application/model/user';
 
 const onConnectionEvent = (socket: Socket): void => {
@@ -22,7 +22,8 @@ const onJoinRoomEvent = async (socketId: string): Promise<void> => {
         return;
     }
     try {
-        await userService.join(user.socketId);
+        const room = await userService.join(user.socketId);
+        gameService.startGameIfRoomIsFilled(room);
     } catch (err) {
         console.error(err);
     }
