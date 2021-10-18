@@ -5,10 +5,12 @@ import { Field } from '../model/field';
 import { Game, Direction } from '../model/game';
 import { Npc } from '../model/npc';
 import { Player } from '../model/player';
+import { Room } from '../model/room';
 import { User } from '../model/user';
 
 interface IGameService {
     createGame(users: User[], roomName: string): Game;
+    startGameIfRoomIsFilled(room: Room): void;
 }
 
 class GameService implements IGameService {
@@ -17,6 +19,7 @@ class GameService implements IGameService {
         this.socketController = socketController;
     }
 
+    /// ゲームを作成、初期化する
     createGame(users: User[], roomName: string): Game {
         assert(users.length === 2);
         const player1 = new Player(users[0], { x: 1, y: 1 });
@@ -48,6 +51,18 @@ class GameService implements IGameService {
             });
         });
         return newGame;
+    }
+
+    /// roomが定員に達していればゲームを作成、
+    /// currentGameに入れてスタートする
+    startGameIfRoomIsFilled(room: Room): void {
+        const socketRoom = this.socketController.findRoom(room.roomname);
+        console.log(room, socketRoom);
+        if (socketRoom?.fulfill === true) {
+            const game = this.createGame(room.assignedUsers, room.roomname);
+            room.currentGame = game;
+            game.start();
+        }
     }
 }
 

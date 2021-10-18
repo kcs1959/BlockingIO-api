@@ -49,7 +49,7 @@ const userService: IUserService = new UserService(
 );
 const gameService: IGameService = new GameService(socketIOController);
 
-export { userRepository, socketIOController, userService, gameService };
+export { userRepository, userService, gameService };
 
 socketIOController.onConnection((socket) => {
     console.log('Connection ok');

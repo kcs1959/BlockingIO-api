@@ -36,6 +36,7 @@ interface ISocketIOController {
     numberOfRooms(): number;
     getAvailableRoomName(): string | null;
     createRoom(name: string, host: Socket): Promise<void>;
+    findRoom(name: string): SocketRoom | null;
     joinRoom(name: string, newcomer: Socket): Promise<void>;
     releaseRoom(name: string): void;
     leaveRoom(socket: Socket, name: string): Promise<void>;
