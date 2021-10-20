@@ -36,6 +36,7 @@ interface ISocketIOController {
     numberOfRooms(): number;
     getAvailableRoomName(): string | null;
     createRoom(name: string, host: Socket): Promise<void>;
+    removeRoom(name: string): Promise<void>;
     findRoom(name: string): SocketRoom | null;
     joinRoom(name: string, newcomer: Socket): Promise<void>;
     releaseRoom(name: string): void;
@@ -139,6 +140,15 @@ class SocketIOController implements ISocketIOController {
         };
         this.rooms.add(newRoom);
         await host.join(name);
+    }
+
+    async removeRoom(name: string): Promise<void> {
+        const room = this.findRoom(name);
+        if (!room) return;
+        for (const socket of room.sockets) {
+            await socket.leave(name);
+        }
+        this.rooms.delete(room);
     }
 
     findRoom(name: string): SocketRoom | null {

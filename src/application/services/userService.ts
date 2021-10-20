@@ -10,6 +10,7 @@ import { Room } from '../model/room';
 interface IUserService {
     createRoom(socketId: string): Promise<Room>;
     join(socketId: string): Promise<Room>;
+    leave(socketId: string): Promise<void>;
 }
 
 class UserService implements IUserService {
@@ -103,6 +104,38 @@ class UserService implements IUserService {
         } catch (err) {
             console.error(err);
             throw err;
+        }
+    }
+
+    async leave(socketId: string): Promise<void> {
+        const user = this.userRepository.findUserWithSocketId(socketId);
+        if (!user) {
+            throw 'ユーザーが存在しません';
+        }
+        const room = this.roomRepository.getRoomFromUser(user);
+        if (!room) {
+            throw 'ルームが存在しません';
+        }
+        if (room.currentGame) {
+            // ゲームを強制終了して破棄
+            room.currentGame.terminate();
+            room.currentGame = null;
+        }
+        room.assignedUsers = room.assignedUsers.filter(
+            (u) => u.socketId != socketId
+        );
+        console.log(`${socketId}のユーザを${room.roomname}から削除しました`);
+        console.log(room);
+        const socketRoom = this.socketController.findRoom(room.roomname);
+        if (!socketRoom) {
+            throw 'ソケットルームが見つかりません';
+        }
+        socketRoom.sockets = socketRoom.sockets.filter((s) => s.id != socketId);
+        socketRoom.fulfill = false;
+        if (socketRoom.sockets.length == 0) {
+            console.log(`ルーム: ${room.roomname}を破棄します`);
+            await this.socketController.removeRoom(room.roomname);
+            this.roomRepository.deleteRoom(room);
         }
     }
 }

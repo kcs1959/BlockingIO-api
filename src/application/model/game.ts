@@ -66,12 +66,24 @@ class Game {
         }
         this.updateListener?.call(this, this);
     }
+
+    terminate(): void {
+        this.state = 'Terminated';
+        console.log(`Game -> ${this.state}`);
+        this.updateListener?.call(this, this);
+        this.updateListener = null;
+    }
 }
 
 type Direction = 'up' | 'down' | 'left' | 'right';
 
 type GameUpdatedListener = (game: Game) => void;
 
-type GameState = 'BeforeStart' | 'PendingStart' | 'InGame' | 'Finish';
+type GameState =
+    | 'BeforeStart'
+    | 'PendingStart'
+    | 'InGame'
+    | 'Finish'
+    | 'Terminated';
 
 export { Game, Direction, GameUpdatedListener };
