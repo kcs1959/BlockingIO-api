@@ -22,6 +22,7 @@ const tryMove = (socket: Socket, data: Direction): void => {
 };
 
 function connectToGame(socket: Socket): void {
+    socket.off(events.updateFieldEvent.name);
     socket.on(events.updateFieldEvent.name, (game: Game[]) => {
         if (fieldArea) {
             const field: string[][] = JSON.parse(JSON.stringify(fieldBase));
@@ -35,7 +36,7 @@ function connectToGame(socket: Socket): void {
         }
     });
 
-    document.body.addEventListener('keydown', (event) => {
+    function keyDownEventHandler(event: KeyboardEvent): void {
         if (event.key === 'w') {
             console.log('w');
             tryMove(socket, 'up');
@@ -49,7 +50,10 @@ function connectToGame(socket: Socket): void {
             console.log('d');
             tryMove(socket, 'down');
         }
-    });
+    }
+
+    document.body.removeEventListener('keydown', keyDownEventHandler);
+    document.body.addEventListener('keydown', keyDownEventHandler);
 }
 
 export { connectToGame };

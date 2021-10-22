@@ -56,10 +56,8 @@ class GameService implements IGameService {
     /// roomが定員に達していればゲームを作成、
     /// currentGameに入れてスタートする
     startGameIfRoomIsFilled(room: Room): void {
-        const socketRoom = this.socketController.findRoom(room.roomname);
-        console.log(room, socketRoom);
-        if (socketRoom?.fulfill === true) {
-            const game = this.createGame(room.assignedUsers, room.roomname);
+        if (room.state === 'Fulfilled') {
+            const game = this.createGame(room.getUsers(), room.roomname);
             room.currentGame = game;
             game.start();
         }

@@ -1,3 +1,4 @@
+import { assert } from 'console';
 import { Server, Socket } from 'socket.io';
 
 interface SocketEvent {
@@ -33,32 +34,24 @@ interface ISocketIOController {
     broadcast<Data>(sender: Socket, event: SocketEvent, data: Data): boolean;
 
     // Room
-    numberOfRooms(): number;
-    getAvailableRoomName(): string | null;
-    createRoom(name: string, host: Socket): Promise<void>;
+    createRoom(host: Socket): Promise<string>;
     removeRoom(name: string): Promise<void>;
-    findRoom(name: string): SocketRoom | null;
-    joinRoom(name: string, newcomer: Socket): Promise<void>;
+    joinRoom(name: string, newcomer: Socket): Promise<boolean>;
     releaseRoom(name: string): void;
-    leaveRoom(socket: Socket, name: string): Promise<void>;
-}
-
-interface SocketRoom {
-    sockets: Socket[];
-    name: string;
-    maxMember: number;
-    fulfill: boolean;
 }
 
 class SocketIOController implements ISocketIOController {
     io: Server;
     sockets: Socket[];
-    rooms: Set<SocketRoom>;
+    rooms: Set<string>;
+
+    roomIndex: number;
 
     constructor(io: Server) {
         this.io = io;
         this.sockets = [];
         this.rooms = new Set();
+        this.roomIndex = 0;
     }
 
     register<Response>(
@@ -113,104 +106,35 @@ class SocketIOController implements ISocketIOController {
         return sender.broadcast.emit(event.name, [data]);
     }
 
-    getAvailableRoomName(): string | null {
-        console.log(this.rooms);
-        for (const r of this.rooms) {
-            if (r.fulfill) continue;
-            return r.name;
-        }
-        return null;
-    }
-
-    numberOfRooms(): number {
-        return this.rooms.size;
-    }
-
-    async createRoom(name: string, host: Socket): Promise<void> {
-        const duplicateRoomName = this.findRoom(name) != null;
-        if (duplicateRoomName) {
-            console.log('このルーム名は既にあります');
-            return;
-        }
-        const newRoom: SocketRoom = {
-            name: name,
-            sockets: [host],
-            maxMember: 2,
-            fulfill: false,
-        };
-        this.rooms.add(newRoom);
-        await host.join(name);
+    async createRoom(host: Socket): Promise<string> {
+        const roomName = `ルーム${this.roomIndex++}`;
+        assert(!this.rooms.has(roomName));
+        this.rooms.add(roomName);
+        await host.join(roomName);
+        return roomName;
     }
 
     async removeRoom(name: string): Promise<void> {
-        const room = this.findRoom(name);
-        if (!room) return;
-        for (const socket of room.sockets) {
-            await socket.leave(name);
-        }
-        this.rooms.delete(room);
-    }
-
-    findRoom(name: string): SocketRoom | null {
-        let room: SocketRoom | null = null;
-        for (const r of this.rooms.values()) {
-            if (r.name === name) {
-                room = r;
-                break;
-            }
-        }
-        return room;
-    }
-
-    findAvailableRoom(name: string): SocketRoom | null {
-        let room: SocketRoom | null = null;
-        for (const r of this.rooms.values()) {
-            if (r.name === name && !r.fulfill) {
-                room = r;
-                break;
-            }
-        }
-        return room;
-    }
-
-    async joinRoom(name: string, newcomer: Socket): Promise<void> {
-        const room = this.findAvailableRoom(name);
-        if (!room) {
-            console.log('availableRoomがない');
+        if (!this.rooms.has(name)) {
             return;
         }
-        if (room.sockets.includes(newcomer)) {
-            console.error('既にこのルームに入っている');
-            return;
+        this.rooms.delete(name);
+    }
+
+    async joinRoom(name: string, newcomer: Socket): Promise<boolean> {
+        if (!this.rooms.has(name)) {
+            return false;
         }
         await newcomer.join(name);
-        room.sockets.push(newcomer);
-        const isAvailable = room.sockets.length < room.maxMember;
-        if (!isAvailable) {
-            console.log(`${room.name}は定員に達しました`);
-            this.rooms.delete(room);
-            room.fulfill = true;
-            this.rooms.add(room);
-        }
+        return true;
     }
 
     releaseRoom(name: string): void {
         this.io.socketsLeave(name);
         for (const room of this.rooms.values()) {
-            if (room.name === name) {
+            if (room === name) {
                 this.rooms.delete(room);
             }
-        }
-    }
-
-    async leaveRoom(socket: Socket, name: string): Promise<void> {
-        const room = this.findRoom(name);
-        if (!room) return;
-        await socket.leave(name);
-        room.sockets = room.sockets.filter((s) => s.id !== socket.id);
-        const isLastMember = room.sockets.length === 0;
-        if (isLastMember) {
-            this.rooms.delete(room);
         }
     }
 }
