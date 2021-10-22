@@ -34,11 +34,8 @@ interface ISocketIOController {
     broadcast<Data>(sender: Socket, event: SocketEvent, data: Data): boolean;
 
     // Room
-    //numberOfRooms(): number;
-    //getAvailableRoomName(): string | null;
     createRoom(host: Socket): Promise<string>;
     removeRoom(name: string): Promise<void>;
-    //findRoom(name: string): SocketRoom | null;
     joinRoom(name: string, newcomer: Socket): Promise<boolean>;
     releaseRoom(name: string): void;
 }
@@ -109,19 +106,6 @@ class SocketIOController implements ISocketIOController {
         return sender.broadcast.emit(event.name, [data]);
     }
 
-    // getAvailableRoomName(): string | null {
-    //     console.log(this.rooms);
-    //     for (const r of this.rooms) {
-    //         if (r.fulfill) continue;
-    //         return r.name;
-    //     }
-    //     return null;
-    // }
-
-    // numberOfRooms(): number {
-    //     return this.rooms.size;
-    // }
-
     async createRoom(host: Socket): Promise<string> {
         const roomName = `ルーム${this.roomIndex++}`;
         assert(!this.rooms.has(roomName));
@@ -136,28 +120,6 @@ class SocketIOController implements ISocketIOController {
         }
         this.rooms.delete(name);
     }
-
-    // findRoom(name: string): SocketRoom | null {
-    //     let room: SocketRoom | null = null;
-    //     for (const r of this.rooms.values()) {
-    //         if (r.name === name) {
-    //             room = r;
-    //             break;
-    //         }
-    //     }
-    //     return room;
-    // }
-
-    // findAvailableRoom(name: string): SocketRoom | null {
-    //     let room: SocketRoom | null = null;
-    //     for (const r of this.rooms.values()) {
-    //         if (r.name === name && !r.fulfill) {
-    //             room = r;
-    //             break;
-    //         }
-    //     }
-    //     return room;
-    // }
 
     async joinRoom(name: string, newcomer: Socket): Promise<boolean> {
         if (!this.rooms.has(name)) {

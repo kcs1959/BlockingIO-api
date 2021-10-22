@@ -14,7 +14,7 @@ class Room {
         this.maxMember = 2;
         assert(
             assignedUsers.length <= this.maxMember,
-            'Room can only have 2 members'
+            `Room can only have ${this.maxMember} members`
         );
         this.assignedUsers = assignedUsers;
         this.roomId = uuidv4();
