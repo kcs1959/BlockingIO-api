@@ -17,7 +17,7 @@ const findAvailableRoomEvent: SocketEvent = {
 };
 
 const updateFieldEvent: SocketEvent = {
-    name: 'udpate-field',
+    name: 'update-field',
 };
 
 const tryMoveEvent: SocketEvent = {

@@ -66,6 +66,8 @@ socketIOController.onConnection((socket) => {
             await onJoinRoomEvent(socket.id);
         },
     };
+
+    // index.tsのjoinRoomでemitされた「joinRoomEvent」を受け取るとsocketIOControllerのlistener.onの中身が呼ばれる
     socketIOController.register(socket, joinRoomRegistration);
 });
 
