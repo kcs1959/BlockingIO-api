@@ -9,6 +9,7 @@ const onConnectionEvent = (socket: Socket): void => {
 };
 
 const onDisconnectEvent = (socket: Socket): void => {
+    userService.leave(socket.id);
     const user = userRepository.findUserWithSocketId(socket.id);
     if (user) {
         userRepository.deleteUser(user);
