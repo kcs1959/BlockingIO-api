@@ -6,6 +6,7 @@ interface IRoomRepository {
     getRoomFromName(name: string): Room | null;
     saveRoom(room: Room): void;
     deleteRoom(room: Room): void;
+    getAvailableRoom(): Room | null;
 }
 
 class RoomRepository implements IRoomRepository {
@@ -16,11 +17,7 @@ class RoomRepository implements IRoomRepository {
     }
 
     getRoomFromUser(user: User): Room | null {
-        return (
-            this.rooms.find((r) =>
-                r.assignedUsers.find((u) => u.uid == user.uid)
-            ) ?? null
-        );
+        return this.rooms.find((r) => r.findUser(user.uid) !== null) ?? null;
     }
 
     getRoomFromName(name: string): Room | null {
@@ -44,6 +41,10 @@ class RoomRepository implements IRoomRepository {
 
     deleteRoom(room: Room): void {
         this.rooms = this.rooms.filter((r) => r !== room);
+    }
+
+    getAvailableRoom(): Room | null {
+        return this.rooms.find((r) => r.state !== 'Fulfilled') ?? null;
     }
 }
 

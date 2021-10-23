@@ -2,7 +2,7 @@ import { Socket } from 'socket.io-client';
 import * as events from '../../../src/routes/socketEvents';
 import { Direction, Game } from '../../../src/application/model/game';
 
-const fieldArea: HTMLElement | null = document.getElementById('field');
+const fieldArea: HTMLElement = document.getElementById('field') as HTMLElement;
 
 const fieldBase: string[][] = [];
 const fieldWidth = 32;
@@ -13,15 +13,12 @@ for (let i = 0; i < fieldWidth; i++) {
     }
 }
 
-if (fieldArea) {
-    fieldArea.innerHTML = fieldBase.map((r) => r.join('')).join('<br>');
-}
-
 const tryMove = (socket: Socket, data: Direction): void => {
     socket.emit(events.tryMoveEvent.name, data);
 };
 
 function connectToGame(socket: Socket): void {
+    socket.off(events.updateFieldEvent.name);
     socket.on(events.updateFieldEvent.name, (game: Game[]) => {
         if (fieldArea) {
             const field: string[][] = JSON.parse(JSON.stringify(fieldBase));
@@ -35,7 +32,7 @@ function connectToGame(socket: Socket): void {
         }
     });
 
-    document.body.addEventListener('keydown', (event) => {
+    function keyDownEventHandler(event: KeyboardEvent): void {
         if (event.key === 'w') {
             console.log('w');
             tryMove(socket, 'up');
@@ -49,7 +46,15 @@ function connectToGame(socket: Socket): void {
             console.log('d');
             tryMove(socket, 'down');
         }
-    });
+    }
+
+    document.body.removeEventListener('keydown', keyDownEventHandler);
+    document.body.addEventListener('keydown', keyDownEventHandler);
 }
 
-export { connectToGame };
+function cleanGame(socket: Socket): void {
+    socket.off(events.updateFieldEvent.name);
+    fieldArea.innerHTML = '';
+}
+
+export { connectToGame, cleanGame };

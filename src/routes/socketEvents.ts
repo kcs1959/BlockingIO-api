@@ -4,12 +4,8 @@ const joinRoomEvent: SocketEvent = {
     name: 'join-room',
 };
 
-const addNewRoomMemberEvent: SocketEvent = {
-    name: 'add-new-room-member',
-};
-
-const fulfillRoomEvent: SocketEvent = {
-    name: 'fulfill-room-event',
+const roomStateEvent: SocketEvent = {
+    name: 'room-state',
 };
 
 const findAvailableRoomEvent: SocketEvent = {
@@ -26,8 +22,7 @@ const tryMoveEvent: SocketEvent = {
 
 export {
     joinRoomEvent,
-    addNewRoomMemberEvent,
-    fulfillRoomEvent,
+    roomStateEvent,
     findAvailableRoomEvent,
     updateFieldEvent,
     tryMoveEvent,
