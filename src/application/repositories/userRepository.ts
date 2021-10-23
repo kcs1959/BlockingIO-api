@@ -1,4 +1,7 @@
 import { User } from '../model/user';
+import * as database from '../../infrastructure/database';
+import { PoolClient } from 'pg';
+import { UserEntity } from '../entity/user';
 
 interface IUserRepository {
     findUserWithUid(uid: string): User | undefined;
@@ -10,8 +13,28 @@ interface IUserRepository {
 class UserRepository implements IUserRepository {
     users: User[];
 
+    client: PoolClient | undefined;
+
     constructor() {
         this.users = [];
+        database
+            .connect()
+            .then(async (client) => {
+                this.client = client;
+
+                const sql = 'SELECT * FROM users';
+                const users: UserEntity[] = await database.performSQL(
+                    sql,
+                    null,
+                    client
+                );
+                console.log('users-entity', users);
+                this.users = users.map(
+                    (user) => new User(user.name, user.point, user.id, null)
+                );
+                console.log('users-model', this.users);
+            })
+            .catch((err) => console.error(err));
     }
 
     findUserWithSocketId(socketId: string): User | undefined {
@@ -22,12 +45,26 @@ class UserRepository implements IUserRepository {
         return this.users.find((u) => u.uid === uid);
     }
 
-    saveUser(user: User): void {
+    async saveUser(user: User): Promise<void> {
+        if (this.client == null) {
+            console.error('データベースクライアントがnullです');
+            return;
+        }
         this.users.push(user);
+        const sql = 'INSERT INTO users VALUES ($1, $2, $3)';
+        const values = [user.uid, user.name, user.point];
+        await database.performSQL(sql, values, this.client);
     }
 
-    deleteUser(user: User): void {
+    async deleteUser(user: User): Promise<void> {
+        if (this.client == null) {
+            console.error('データベースクライアントがnullです');
+            return;
+        }
         this.users = this.users.filter((u) => u.uid !== user.uid);
+        const sql = 'DELETE FROM users WHERE uid = $1';
+        const values = [user.uid];
+        await database.performSQL(sql, values, this.client);
     }
 }
 
