@@ -5,7 +5,7 @@ const joinRoomEvent: SocketEvent = {
 };
 
 const roomStateEvent: SocketEvent = {
-    name: 'room-state-event',
+    name: 'room-state',
 };
 
 const findAvailableRoomEvent: SocketEvent = {

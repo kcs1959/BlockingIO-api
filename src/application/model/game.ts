@@ -68,7 +68,7 @@ class Game {
     }
 
     terminate(): void {
-        this.state = 'Terminated';
+        this.state = 'AbnormalEnd';
         console.log(`Game -> ${this.state}`);
         this.updateListener?.call(this, this);
         this.updateListener = null;
@@ -80,10 +80,10 @@ type Direction = 'up' | 'down' | 'left' | 'right';
 type GameUpdatedListener = (game: Game) => void;
 
 type GameState =
-    | 'BeforeStart'
-    | 'PendingStart'
-    | 'InGame'
-    | 'Finish'
-    | 'Terminated';
+    | 'BeforeStart' // ゲーム開始前
+    | 'PendingStart' // ゲーム開始待ち
+    | 'InGame' // ゲーム中
+    | 'Finish' // ゲームが正常終了した場合
+    | 'AbnormalEnd'; // ユーザが退出するなどの理由でゲームが終了した場合
 
 export { Game, Direction, GameUpdatedListener };
