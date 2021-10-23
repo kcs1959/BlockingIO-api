@@ -2,7 +2,7 @@ import { Socket } from 'socket.io-client';
 import * as events from '../../../src/routes/socketEvents';
 import { Direction, Game } from '../../../src/application/model/game';
 
-const fieldArea: HTMLElement | null = document.getElementById('field');
+const fieldArea: HTMLElement = document.getElementById('field') as HTMLElement;
 
 const fieldBase: string[][] = [];
 const fieldWidth = 32;
@@ -11,10 +11,6 @@ for (let i = 0; i < fieldWidth; i++) {
     for (let j = 0; j < fieldWidth; j++) {
         fieldBase[i][j] = '０';
     }
-}
-
-if (fieldArea) {
-    fieldArea.innerHTML = fieldBase.map((r) => r.join('')).join('<br>');
 }
 
 const tryMove = (socket: Socket, data: Direction): void => {
@@ -56,4 +52,9 @@ function connectToGame(socket: Socket): void {
     document.body.addEventListener('keydown', keyDownEventHandler);
 }
 
-export { connectToGame };
+function cleanGame(socket: Socket): void {
+    socket.off(events.updateFieldEvent.name);
+    fieldArea.innerHTML = '';
+}
+
+export { connectToGame, cleanGame };
