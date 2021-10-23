@@ -9,12 +9,6 @@ joinRoomButton?.addEventListener('click', () => {
     joinRoom(socket);
 });
 
-const fieldArea: HTMLElement | null = document.getElementById('field');
-
-if (fieldArea) {
-    fieldArea.innerHTML = Array(33).join(Array(33).join('０') + '<br>');
-}
-
 socket.on('connect', (): void => {
     console.log('connect');
 });
