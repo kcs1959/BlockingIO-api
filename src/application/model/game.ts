@@ -52,16 +52,16 @@ class Game {
 
         switch (direction) {
             case 'up':
-                target.position.x -= 1;
+                target.position.row -= 1;
                 break;
             case 'down':
-                target.position.x += 1;
+                target.position.row += 1;
                 break;
             case 'left':
-                target.position.y -= 1;
+                target.position.column -= 1;
                 break;
             case 'right':
-                target.position.y += 1;
+                target.position.column += 1;
                 break;
         }
         this.updateListener?.call(this, this);

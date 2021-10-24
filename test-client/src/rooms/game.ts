@@ -23,11 +23,11 @@ function connectToGame(socket: Socket): void {
         if (fieldArea) {
             const field: string[][] = JSON.parse(JSON.stringify(fieldBase));
             const aPos = game.listOfPlayer[0].position;
-            field[aPos.x][aPos.y] = '<span class=player>Ａ</span>';
+            field[aPos.row][aPos.column] = '<span class=player>Ａ</span>';
             const bPos = game.listOfPlayer[1].position;
-            field[bPos.x][bPos.y] = '<span class=player>Ｂ</span>';
+            field[bPos.row][bPos.column] = '<span class=player>Ｂ</span>';
             const tPos = game.tagger.position;
-            field[tPos.x][tPos.y] = '<span class=tagger>Ｔ</span>';
+            field[tPos.row][tPos.column] = '<span class=tagger>Ｔ</span>';
             fieldArea.innerHTML = field.map((r) => r.join('')).join('<br>');
         }
     });
