@@ -87,7 +87,7 @@ class SocketIOController implements ISocketIOController {
     }
 
     send<Data>(sender: Socket, event: SocketEvent, data: Data): boolean {
-        return sender.emit(event.name, [data]);
+        return sender.emit(event.name, data);
     }
 
     sendToRoom<Data>(
@@ -97,13 +97,13 @@ class SocketIOController implements ISocketIOController {
         data: Data
     ): boolean {
         if (sender) {
-            return sender.to(name).emit(event.name, [data]);
+            return sender.to(name).emit(event.name, data);
         }
-        return this.io.to(name).emit(event.name, [data]);
+        return this.io.to(name).emit(event.name, data);
     }
 
     broadcast<Data>(sender: Socket, event: SocketEvent, data: Data): boolean {
-        return sender.broadcast.emit(event.name, [data]);
+        return sender.broadcast.emit(event.name, data);
     }
 
     async createRoom(host: Socket): Promise<string> {

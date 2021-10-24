@@ -13,8 +13,7 @@ const joinRoom = (socket: Socket): void => {
     socket.emit(events.joinRoomEvent.name, socket.id);
 
     socket.off(events.roomStateEvent.name);
-    socket.on(events.roomStateEvent.name, (rooms: Room[]) => {
-        const room = rooms[0];
+    socket.on(events.roomStateEvent.name, (room: Room) => {
         //console.log(`Room updated: \n${JSON.stringify(room)}`);
         console.log(`${pastState} -> ${room.state}`);
         if (room.state === 'Fulfilled') {
