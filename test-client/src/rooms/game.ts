@@ -19,14 +19,14 @@ const tryMove = (socket: Socket, data: Direction): void => {
 
 function connectToGame(socket: Socket): void {
     socket.off(events.updateFieldEvent.name);
-    socket.on(events.updateFieldEvent.name, (game: Game[]) => {
+    socket.on(events.updateFieldEvent.name, (game: Game) => {
         if (fieldArea) {
             const field: string[][] = JSON.parse(JSON.stringify(fieldBase));
-            const aPos = game[0].listOfPlayer[0].position;
+            const aPos = game.listOfPlayer[0].position;
             field[aPos.x][aPos.y] = '<span class=player>Ａ</span>';
-            const bPos = game[0].listOfPlayer[1].position;
+            const bPos = game.listOfPlayer[1].position;
             field[bPos.x][bPos.y] = '<span class=player>Ｂ</span>';
-            const tPos = game[0].tagger.position;
+            const tPos = game.tagger.position;
             field[tPos.x][tPos.y] = '<span class=tagger>Ｔ</span>';
             fieldArea.innerHTML = field.map((r) => r.join('')).join('<br>');
         }
