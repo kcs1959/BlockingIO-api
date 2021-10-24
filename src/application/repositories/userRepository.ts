@@ -62,7 +62,7 @@ class UserRepository implements IUserRepository {
             return;
         }
         this.users = this.users.filter((u) => u.uid !== user.uid);
-        const sql = 'DELETE FROM users WHERE uid = $1';
+        const sql = 'DELETE FROM users WHERE id = $1';
         const values = [user.uid];
         await database.performSQL(sql, values, this.client);
     }
