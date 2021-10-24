@@ -41,10 +41,10 @@ function connectToGame(socket: Socket): void {
             tryMove(socket, 'left');
         } else if (event.key === 's') {
             console.log('s');
-            tryMove(socket, 'right');
+            tryMove(socket, 'down');
         } else if (event.key === 'd') {
             console.log('d');
-            tryMove(socket, 'down');
+            tryMove(socket, 'right');
         }
     }
 
