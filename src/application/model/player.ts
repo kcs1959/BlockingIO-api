@@ -21,6 +21,7 @@ export class Player {
         this.status = 'alive';
     }
 
+    // 進行方向から見て、周囲の位置を取得する
     getAmbientSquaresPosition(): {
         forward: Position;
         left: Position;
@@ -31,31 +32,36 @@ export class Player {
         const right = { ...this.position };
         switch (this.direction) {
             case 'up':
-                forward.y -= 1;
-                left.x -= 1;
-                right.x += 1;
+                forward.row -= 1;
+                left.column -= 1;
+                right.column += 1;
                 break;
             case 'down':
-                forward.y += 1;
-                left.x += 1;
-                right.x -= 1;
+                forward.row += 1;
+                left.column += 1;
+                right.column -= 1;
                 break;
             case 'left':
-                forward.x -= 1;
-                left.y -= 1;
-                right.y += 1;
+                forward.column -= 1;
+                left.row += 1;
+                right.row -= 1;
                 break;
             case 'right':
-                forward.x += 1;
-                left.y += 1;
-                right.y -= 1;
+                forward.column += 1;
+                left.row -= 1;
+                right.row += 1;
                 break;
         }
         return { forward, left, right };
     }
 
+    // 相対的な方向に移動し、directionを更新する
     move(relativeDirection: RelativeDirection): void {
-        if (relativeDirection === 'stay') return;
+        if (relativeDirection === 'stay') {
+            // 移動できない場合は向きを反対にして次のときに再試行
+            this.direction = this.getBackDiretion();
+            return;
+        }
         const { forward, left, right } = this.getAmbientSquaresPosition();
         switch (relativeDirection) {
             case 'forward':
@@ -70,7 +76,6 @@ export class Player {
                 this.direction = this.getRightDiretion();
                 break;
         }
-        console.log(this.uid[0], ' moved:', this.position, this.direction);
     }
 
     getLeftDiretion(): Direction {
@@ -96,6 +101,19 @@ export class Player {
                 return 'up';
             case 'right':
                 return 'down';
+        }
+    }
+
+    getBackDiretion(): Direction {
+        switch (this.direction) {
+            case 'up':
+                return 'down';
+            case 'down':
+                return 'up';
+            case 'left':
+                return 'right';
+            case 'right':
+                return 'left';
         }
     }
 }

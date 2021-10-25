@@ -16,7 +16,7 @@ class Game {
     private tickCount = 0;
 
     /// ゲームの更新間隔(ms)
-    private static tickInterval = 1000;
+    private static tickInterval = 200;
 
     constructor(battleField: Field, listOfPlayer: Player[], tagger: Npc) {
         this.battleField = battleField;
@@ -82,6 +82,9 @@ class Game {
         });
     }
 
+    /// playerが指定した方向に移動可能かどうか、
+    /// 不可能であればどの方向に動くのかを計算する
+    /// playerは関数内で不変
     private calcActualDirection(player: Player): RelativeDirection {
         const { forward, left, right } = player.getAmbientSquaresPosition();
         if (this.isReachable(player.position, forward)) {
@@ -98,21 +101,6 @@ class Game {
         if (rightIsReachable) {
             return 'right';
         }
-        // inverse direction
-        switch (player.direction) {
-            case 'up':
-                player.direction = 'down';
-                break;
-            case 'down':
-                player.direction = 'up';
-                break;
-            case 'left':
-                player.direction = 'right';
-                break;
-            case 'right':
-                player.direction = 'left';
-                break;
-        }
         return 'stay';
     }
 
@@ -123,6 +111,7 @@ class Game {
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
+    /// targetにコマが到達可能かどうか
     private isReachable(current: Position, target: Position): boolean {
         if (
             target.row < 0 ||
