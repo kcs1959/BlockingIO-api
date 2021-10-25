@@ -42,11 +42,11 @@ function connectToGame(socket: Socket): void {
                 r.map((c) => c.height.toString())
             );
             const aPos = game.listOfPlayer[0].position;
-            field[aPos.x][aPos.y] = '<span class=player>Ａ</span>';
+            field[aPos.row][aPos.column] = '<span class=player>Ａ</span>';
             const bPos = game.listOfPlayer[1].position;
-            field[bPos.x][bPos.y] = '<span class=player>Ｂ</span>';
+            field[bPos.row][bPos.column] = '<span class=player>Ｂ</span>';
             const tPos = game.tagger.position;
-            field[tPos.x][tPos.y] = '<span class=tagger>Ｔ</span>';
+            field[tPos.row][tPos.column] = '<span class=tagger>Ｔ</span>';
             drawField(field);
         }
     });
@@ -60,10 +60,10 @@ function connectToGame(socket: Socket): void {
             tryMove(socket, 'left');
         } else if (event.key === 's') {
             console.log('s');
-            tryMove(socket, 'right');
+            tryMove(socket, 'down');
         } else if (event.key === 'd') {
             console.log('d');
-            tryMove(socket, 'down');
+            tryMove(socket, 'right');
         }
     }
 

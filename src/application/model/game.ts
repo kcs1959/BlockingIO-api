@@ -75,8 +75,8 @@ class Game {
             p.move(actualDirection);
             // 移動していたら前にいた場所の高さを増やす
             if (actualDirection !== 'stay') {
-                this.battleField.squares[pastPosition.x][
-                    pastPosition.y
+                this.battleField.squares[pastPosition.row][
+                    pastPosition.column
                 ].increment();
             }
         });
@@ -125,15 +125,17 @@ class Game {
 
     private isReachable(current: Position, target: Position): boolean {
         if (
-            target.x < 0 ||
-            target.x >= this.battleField.length ||
-            target.y < 0 ||
-            target.y >= this.battleField.length
+            target.row < 0 ||
+            target.row >= this.battleField.length ||
+            target.column < 0 ||
+            target.column >= this.battleField.length
         ) {
             return false;
         }
-        const currentSquare = this.battleField.squares[current.x][current.y];
-        const targetSquare = this.battleField.squares[target.x][target.y];
+        const currentSquare =
+            this.battleField.squares[current.row][current.column];
+        const targetSquare =
+            this.battleField.squares[target.row][target.column];
         return Math.abs(currentSquare.height - targetSquare.height) <= 1;
     }
 
@@ -148,7 +150,6 @@ class Game {
             console.log(`${userId}はこのゲームにいません`);
             return;
         }
-
         // ここではユーザの操作のみを登録する
         // 実際の移動処理は[updateFieldData]で行う
         target.direction = direction;
