@@ -71,16 +71,16 @@ class Game {
         this.listOfPlayer.forEach((p) => {
             switch (p.direction) {
                 case 'up':
-                    p.position.y -= 1;
+                    p.position.row -= 1;
                     break;
                 case 'down':
-                    p.position.y += 1;
+                    p.position.row += 1;
                     break;
                 case 'left':
-                    p.position.x -= 1;
+                    p.position.column -= 1;
                     break;
                 case 'right':
-                    p.position.x += 1;
+                    p.position.column += 1;
                     break;
             }
         });
@@ -97,7 +97,6 @@ class Game {
             console.log(`${userId}はこのゲームにいません`);
             return;
         }
-
         // ここではユーザの操作のみを登録する
         // 実際の移動処理は[updateFieldData]で行う
         target.direction = direction;
