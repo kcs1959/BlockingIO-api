@@ -11,6 +11,12 @@ class Game {
     /// 盤面の更新を伝えるリスナー
     private updateListener: GameUpdatedListener | null;
 
+    private timer: NodeJS.Timer | null = null;
+    private tickCount = 0;
+
+    /// ゲームの更新間隔(ms)
+    private static tickInterval = 1000;
+
     constructor(battleField: Field, listOfPlayer: Player[], tagger: Npc) {
         this.battleField = battleField;
         this.listOfPlayer = listOfPlayer;
@@ -26,8 +32,29 @@ class Game {
         console.log(`Game -> ${this.state}`);
         setTimeout(() => {
             this.state = 'InGame';
+            this.startTimer();
             console.log(`Game -> ${this.state}`);
         }, 3000);
+    }
+
+    private startTimer(): void {
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
+        this.tickCount = 0;
+        // tickIntervalごとに盤面を計算し、クライアントに通知する
+        this.timer = setInterval(() => {
+            console.log(`Tick ${++this.tickCount}`);
+            this.updateFieldData();
+            this.updateListener?.call(this, this);
+        }, Game.tickInterval);
+    }
+
+    private stopTimer(): void {
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
+        this.timer = null;
     }
 
     setUpdateListener(newListener: GameUpdatedListener): void {
@@ -36,6 +63,27 @@ class Game {
 
     clearUpdateListener(): void {
         this.updateListener = null;
+    }
+
+    /// 盤面の情報を進める
+    private updateFieldData(): void {
+        //ユーザを動かす
+        this.listOfPlayer.forEach((p) => {
+            switch (p.direction) {
+                case 'up':
+                    p.position.y -= 1;
+                    break;
+                case 'down':
+                    p.position.y += 1;
+                    break;
+                case 'left':
+                    p.position.x -= 1;
+                    break;
+                case 'right':
+                    p.position.x += 1;
+                    break;
+            }
+        });
     }
 
     /// ユーザ側から操作を受け付ける関数
@@ -49,27 +97,16 @@ class Game {
             console.log(`${userId}はこのゲームにいません`);
             return;
         }
-
-        switch (direction) {
-            case 'up':
-                target.position.row -= 1;
-                break;
-            case 'down':
-                target.position.row += 1;
-                break;
-            case 'left':
-                target.position.column -= 1;
-                break;
-            case 'right':
-                target.position.column += 1;
-                break;
-        }
-        this.updateListener?.call(this, this);
+        // ここではユーザの操作のみを登録する
+        // 実際の移動処理は[updateFieldData]で行う
+        target.direction = direction;
     }
 
+    /// ゲームを強制終了する
     terminate(): void {
         this.state = 'AbnormalEnd';
         console.log(`Game -> ${this.state}`);
+        this.stopTimer();
         this.updateListener?.call(this, this);
         this.updateListener = null;
     }
