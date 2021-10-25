@@ -1,6 +1,7 @@
 import { Field } from './field';
 import { Player } from './player';
 import { Npc } from './npc';
+import { Position } from './position';
 
 class Game {
     public battleField: Field;
@@ -70,30 +71,70 @@ class Game {
         //ユーザを動かす
         this.listOfPlayer.forEach((p) => {
             const pastPosition = { ...p.position };
-            switch (p.direction) {
-                case 'up':
-                    p.position.y -= 1;
-                    break;
-                case 'down':
-                    p.position.y += 1;
-                    break;
-                case 'left':
-                    p.position.x -= 1;
-                    break;
-                case 'right':
-                    p.position.x += 1;
-                    break;
-            }
+            const actualDirection = this.calcActualDirection(p);
+            p.move(actualDirection);
             // 移動していたら前にいた場所の高さを増やす
-            if (
-                pastPosition.x !== p.position.x ||
-                pastPosition.y !== p.position.y
-            ) {
+            if (actualDirection !== 'stay') {
                 this.battleField.squares[pastPosition.x][
                     pastPosition.y
                 ].increment();
             }
         });
+    }
+
+    private calcActualDirection(player: Player): RelativeDirection {
+        const { forward, left, right } = player.getAmbientSquaresPosition();
+        if (this.isReachable(player.position, forward)) {
+            return 'forward';
+        }
+        const leftIsReachable = this.isReachable(player.position, left);
+        const rightIsReachable = this.isReachable(player.position, right);
+        if (leftIsReachable && rightIsReachable) {
+            return this.getRandomInt(0, 2) === 0 ? 'left' : 'right';
+        }
+        if (leftIsReachable) {
+            return 'left';
+        }
+        if (rightIsReachable) {
+            return 'right';
+        }
+        // inverse direction
+        switch (player.direction) {
+            case 'up':
+                player.direction = 'down';
+                break;
+            case 'down':
+                player.direction = 'up';
+                break;
+            case 'left':
+                player.direction = 'right';
+                break;
+            case 'right':
+                player.direction = 'left';
+                break;
+        }
+        return 'stay';
+    }
+
+    // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+    private getRandomInt(min: number, max: number): number {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+    }
+
+    private isReachable(current: Position, target: Position): boolean {
+        if (
+            target.x < 0 ||
+            target.x >= this.battleField.length ||
+            target.y < 0 ||
+            target.y >= this.battleField.length
+        ) {
+            return false;
+        }
+        const currentSquare = this.battleField.squares[current.x][current.y];
+        const targetSquare = this.battleField.squares[target.x][target.y];
+        return Math.abs(currentSquare.height - targetSquare.height) <= 1;
     }
 
     /// ユーザ側から操作を受け付ける関数
@@ -125,6 +166,8 @@ class Game {
 
 type Direction = 'up' | 'down' | 'left' | 'right';
 
+type RelativeDirection = 'forward' | 'left' | 'right' | 'stay';
+
 type GameUpdatedListener = (game: Game) => void;
 
 type GameState =
@@ -134,4 +177,4 @@ type GameState =
     | 'Finish' // ゲームが正常終了した場合
     | 'AbnormalEnd'; // ユーザが退出するなどの理由でゲームが終了した場合
 
-export { Game, Direction, GameUpdatedListener };
+export { Game, Direction, RelativeDirection, GameUpdatedListener };
