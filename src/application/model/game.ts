@@ -69,6 +69,7 @@ class Game {
     private updateFieldData(): void {
         //ユーザを動かす
         this.listOfPlayer.forEach((p) => {
+            const pastPosition = { ...p.position };
             switch (p.direction) {
                 case 'up':
                     p.position.y -= 1;
@@ -82,6 +83,15 @@ class Game {
                 case 'right':
                     p.position.x += 1;
                     break;
+            }
+            // 移動していたら前にいた場所の高さを増やす
+            if (
+                pastPosition.x !== p.position.x ||
+                pastPosition.y !== p.position.y
+            ) {
+                this.battleField.squares[pastPosition.x][
+                    pastPosition.y
+                ].increment();
             }
         });
     }

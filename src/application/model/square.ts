@@ -3,4 +3,8 @@ export class Square {
     constructor() {
         this.height = 0;
     }
+
+    increment(): void {
+        this.height++;
+    }
 }

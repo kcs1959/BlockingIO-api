@@ -4,6 +4,23 @@ import { Direction, Game } from '../../../src/application/model/game';
 
 const fieldArea: HTMLElement = document.getElementById('field') as HTMLElement;
 
+function drawField(data: string[][]): void {
+    if (fieldArea) {
+        fieldArea.innerHTML = '';
+        data.forEach((r) => {
+            const rowElement: HTMLElement = document.createElement('div');
+            rowElement.classList.add('field-row');
+            r.forEach((c) => {
+                const cellElement: HTMLElement = document.createElement('div');
+                cellElement.classList.add('field-cell');
+                cellElement.innerHTML = c;
+                rowElement.appendChild(cellElement);
+            });
+            fieldArea.appendChild(rowElement);
+        });
+    }
+}
+
 const fieldBase: string[][] = [];
 const fieldWidth = 32;
 for (let i = 0; i < fieldWidth; i++) {
@@ -21,14 +38,16 @@ function connectToGame(socket: Socket): void {
     socket.off(events.updateFieldEvent.name);
     socket.on(events.updateFieldEvent.name, (game: Game) => {
         if (fieldArea) {
-            const field: string[][] = JSON.parse(JSON.stringify(fieldBase));
+            const field = game.battleField.squares.map((r) =>
+                r.map((c) => c.height.toString())
+            );
             const aPos = game.listOfPlayer[0].position;
             field[aPos.x][aPos.y] = '<span class=player>Ａ</span>';
             const bPos = game.listOfPlayer[1].position;
             field[bPos.x][bPos.y] = '<span class=player>Ｂ</span>';
             const tPos = game.tagger.position;
             field[tPos.x][tPos.y] = '<span class=tagger>Ｔ</span>';
-            fieldArea.innerHTML = field.map((r) => r.join('')).join('<br>');
+            drawField(field);
         }
     });
 

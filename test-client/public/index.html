@@ -15,7 +15,26 @@
     .tagger {
         color: blue;
     }
+
+    #field-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .field-row {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .field-cell {
+        font-size: 13px;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        border: 1px solid #ccc;
+    }
 </style>
 <p id="roomState"></p>
-<p id="field"></p>
+<div id="field"></div>
 <button id="joinRoomButton">ルームに入る</button>
