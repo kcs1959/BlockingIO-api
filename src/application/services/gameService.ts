@@ -22,8 +22,8 @@ class GameService implements IGameService {
     /// ゲームを作成、初期化する
     createGame(users: User[], roomName: string): Game {
         assert(users.length === 2);
-        const player1 = new Player(users[0], { x: 1, y: 1 });
-        const player2 = new Player(users[1], { x: 8, y: 8 });
+        const player1 = new Player(users[0], { x: 1, y: 1 }, 'down');
+        const player2 = new Player(users[1], { x: 8, y: 8 }, 'down');
         const npc = new Npc('鬼', { x: 1, y: 8 });
 
         const field = new Field(32);
