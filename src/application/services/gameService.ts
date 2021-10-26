@@ -41,7 +41,7 @@ class GameService implements IGameService {
         users.forEach((u) => {
             const socketId = u.socketId;
             if (!socketId) return;
-            const socket = this.socketController.getSocket(socketId);
+            const socket = this.socketController.getSocketWithSid(socketId);
             if (!socket) return;
             this.socketController.register(socket, {
                 event: tryMoveEvent,
