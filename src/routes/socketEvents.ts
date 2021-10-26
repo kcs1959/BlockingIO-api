@@ -24,7 +24,7 @@ const setupUidEvent: SocketEvent = {
     name: 'setup-uid',
 };
 
-const onUpdateUserEvent: SocketEvent = {
+const updateUserEvent: SocketEvent = {
     name: 'on-update-user',
 };
 
@@ -35,5 +35,5 @@ export {
     updateFieldEvent,
     tryMoveEvent,
     setupUidEvent,
-    onUpdateUserEvent,
+    updateUserEvent,
 };
