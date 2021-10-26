@@ -24,7 +24,7 @@ class GameService implements IGameService {
         assert(users.length === 2);
         const player1 = new Player(users[0], { row: 1, column: 1 }, 'down');
         const player2 = new Player(users[1], { row: 8, column: 8 }, 'down');
-        const npc = new Npc('鬼', { row: 1, column: 8 });
+        const npc = new Npc('鬼', { row: 1, column: 8 }, 'down');
 
         const field = new Field(32);
 
