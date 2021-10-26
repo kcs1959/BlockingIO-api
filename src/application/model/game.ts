@@ -1,13 +1,17 @@
 import { Field } from './field';
-import { Player } from './player';
+import { Player, PlayerBase } from './player';
 import { Npc } from './npc';
 import { Position } from './position';
+import * as Util from '../../common/util';
 
 class Game {
     public battleField: Field;
     public listOfPlayer: Player[];
     public tagger: Npc;
     public state: GameState;
+    /// プレイヤーが勝った場合はここに追加しておく
+    /// state === "Finish" 以外では無意味
+    public winner: Player[] = [];
 
     /// 盤面の更新を伝えるリスナー
     private updateListener: GameUpdatedListener | null;
@@ -69,15 +73,40 @@ class Game {
     /// 盤面の情報を進める
     private updateFieldData(): void {
         //ユーザを動かす
+        this.listOfPlayer
+            .filter((p) => p.status === 'alive')
+            .forEach((p) => {
+                const pastPosition = { ...p.position };
+                const actualDirection = this.calcActualDirection(p);
+                p.move(actualDirection);
+                // 移動していたら前にいた場所の高さを増やす
+                if (actualDirection !== 'stay') {
+                    this.battleField.squares[pastPosition.row][
+                        pastPosition.column
+                    ].increment();
+                }
+            });
+        // NPCを動かす
+        const pastPosition = { ...this.tagger.position };
+        this.tagger.calcNextMove(this.battleField, this.listOfPlayer);
+        const actual = this.calcActualDirection(this.tagger);
+        this.tagger.move(actual);
+        if (actual !== 'stay') {
+            this.battleField.squares[pastPosition.row][
+                pastPosition.column
+            ].increment();
+        }
+
         this.listOfPlayer.forEach((p) => {
-            const pastPosition = { ...p.position };
-            const actualDirection = this.calcActualDirection(p);
-            p.move(actualDirection);
-            // 移動していたら前にいた場所の高さを増やす
-            if (actualDirection !== 'stay') {
-                this.battleField.squares[pastPosition.row][
-                    pastPosition.column
-                ].increment();
+            if (
+                Util.calcDistance(p.position, this.tagger.position) <= 1 &&
+                this.isReachable(p.position, this.tagger.position)
+            ) {
+                p.status = 'dead';
+                console.log(`${p.name} is dead`);
+                if (this.listOfPlayer.every((p) => p.status === 'dead')) {
+                    this.finishGame([]);
+                }
             }
         });
     }
@@ -85,7 +114,7 @@ class Game {
     /// playerが指定した方向に移動可能かどうか、
     /// 不可能であればどの方向に動くのかを計算する
     /// playerは関数内で不変
-    private calcActualDirection(player: Player): RelativeDirection {
+    private calcActualDirection(player: PlayerBase): RelativeDirection {
         const { forward, left, right } = player.getAmbientSquaresPosition();
         if (this.isReachable(player.position, forward)) {
             return 'forward';
@@ -93,7 +122,7 @@ class Game {
         const leftIsReachable = this.isReachable(player.position, left);
         const rightIsReachable = this.isReachable(player.position, right);
         if (leftIsReachable && rightIsReachable) {
-            return this.getRandomInt(0, 2) === 0 ? 'left' : 'right';
+            return Util.getRandomInt(0, 2) === 0 ? 'left' : 'right';
         }
         if (leftIsReachable) {
             return 'left';
@@ -102,13 +131,6 @@ class Game {
             return 'right';
         }
         return 'stay';
-    }
-
-    // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-    private getRandomInt(min: number, max: number): number {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
     /// targetにコマが到達可能かどうか
@@ -147,6 +169,15 @@ class Game {
     /// ゲームを強制終了する
     terminate(): void {
         this.state = 'AbnormalEnd';
+        console.log(`Game -> ${this.state}`);
+        this.stopTimer();
+        this.updateListener?.call(this, this);
+        this.updateListener = null;
+    }
+
+    finishGame(winner: Player[]): void {
+        this.winner = winner;
+        this.state = 'Finish';
         console.log(`Game -> ${this.state}`);
         this.stopTimer();
         this.updateListener?.call(this, this);

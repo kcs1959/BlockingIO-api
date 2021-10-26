@@ -5,20 +5,12 @@ import { Position } from './position';
 
 import { User } from './user';
 
-export class Player {
+class PlayerBase {
     public position: Position;
     public direction: Direction;
-    public point: number;
-    public uid: string;
-    public name: string;
-    public status: PlayerStatus;
-    constructor(user: User, position: Position, direction: Direction) {
+    constructor(position: Position, direction: Direction) {
         this.position = position;
         this.direction = direction;
-        this.point = 0;
-        this.uid = user.uid;
-        this.name = user.name;
-        this.status = 'alive';
     }
 
     // 進行方向から見て、周囲の位置を取得する
@@ -117,3 +109,19 @@ export class Player {
         }
     }
 }
+
+class Player extends PlayerBase {
+    public point: number;
+    public uid: string;
+    public name: string;
+    public status: PlayerStatus;
+    constructor(user: User, position: Position, direction: Direction) {
+        super(position, direction);
+        this.point = 0;
+        this.uid = user.uid;
+        this.name = user.name;
+        this.status = 'alive';
+    }
+}
+
+export { Player, PlayerBase };

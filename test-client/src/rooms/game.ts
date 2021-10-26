@@ -3,6 +3,9 @@ import * as events from '../../../src/routes/socketEvents';
 import { Direction, Game } from '../../../src/application/model/game';
 
 const fieldArea: HTMLElement = document.getElementById('field') as HTMLElement;
+const gameStateView: HTMLElement = document.getElementById(
+    'gameState'
+) as HTMLElement;
 
 function drawField(data: string[][]): void {
     if (fieldArea) {
@@ -14,6 +17,11 @@ function drawField(data: string[][]): void {
                 const cellElement: HTMLElement = document.createElement('div');
                 cellElement.classList.add('field-cell');
                 cellElement.innerHTML = c;
+                const num = parseInt(c);
+                if (num) {
+                    const notGreen = Math.min(240 - num * 10, 240);
+                    cellElement.style.backgroundColor = `rgb(${notGreen}, 240, ${notGreen})`;
+                }
                 rowElement.appendChild(cellElement);
             });
             fieldArea.appendChild(rowElement);
@@ -38,6 +46,13 @@ function connectToGame(socket: Socket): void {
     socket.off(events.updateFieldEvent.name);
     socket.on(events.updateFieldEvent.name, (game: Game) => {
         if (fieldArea) {
+            if (game.state === 'Finish') {
+                gameStateView.innerHTML = `${
+                    game.state
+                } winner is: ${game.winner.map((p) => p.name).join()}`;
+            } else {
+                gameStateView.innerHTML = `${game.state}`;
+            }
             const field = game.battleField.squares.map((r) =>
                 r.map((c) => c.height.toString())
             );
