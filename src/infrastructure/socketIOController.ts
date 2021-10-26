@@ -20,8 +20,12 @@ interface ISocketIOController {
     onConnection(handler: (socket: Socket) => void): void;
     onDisconnect(socket: Socket, handler: () => void): void;
 
+    // ユーザーのuidとSocketを紐づける
+    link(uid: string, socket: Socket): void;
+
     // Socket
-    getSocket(id: string): Socket | null;
+    getSocketWithUid(uid: string): Socket | null;
+    getSocketWithSid(sid: string): Socket | null;
 
     // Send
     send<Data>(sender: Socket, event: SocketEvent, data: Data): boolean;
@@ -42,6 +46,10 @@ interface ISocketIOController {
 
 class SocketIOController implements ISocketIOController {
     io: Server;
+    /// ユーザー情報とリンクされているSocketsが格納されている
+    /// keyはデータベースに保存されているuidに対応
+    linkedSockets: Map<string, Socket>;
+    /// ユーザー情報とリンクされていないSocketsが格納されている
     sockets: Socket[];
     rooms: Set<string>;
 
@@ -49,6 +57,7 @@ class SocketIOController implements ISocketIOController {
 
     constructor(io: Server) {
         this.io = io;
+        this.linkedSockets = new Map();
         this.sockets = [];
         this.rooms = new Set();
         this.roomIndex = 0;
@@ -78,8 +87,20 @@ class SocketIOController implements ISocketIOController {
         });
     }
 
-    getSocket(id: string): Socket | null {
-        const socket = this.sockets.find((socket) => socket.id === id);
+    link(uid: string, socket: Socket): void {
+        this.linkedSockets.set(uid, socket);
+    }
+
+    getSocketWithSid(sid: string): Socket | null {
+        const socket = this.sockets.find((socket) => socket.id === sid);
+        if (!socket) {
+            return null;
+        }
+        return socket;
+    }
+
+    getSocketWithUid(uid: string): Socket | null {
+        const socket = this.linkedSockets.get(uid);
         if (!socket) {
             return null;
         }

@@ -3,8 +3,10 @@ import { roomStateEvent } from '../../routes/socketEvents';
 import { IUserRepository } from '../repositories/userRepository';
 import { IRoomRepository } from '../repositories/roomRepository';
 import { Room } from '../model/room';
+import { Socket } from 'socket.io';
 
 interface IUserService {
+    linkUser(uid: string, socket: Socket): Promise<void>;
     createRoom(socketId: string): Promise<Room>;
     join(socketId: string): Promise<Room>;
     leave(socketId: string): Promise<void>;
@@ -25,8 +27,12 @@ class UserService implements IUserService {
         this.roomRepository = roomRepository;
     }
 
+    async linkUser(uid: string, socket: Socket): Promise<void> {
+        this.socketController.link(uid, socket);
+    }
+
     async createRoom(socketId: string): Promise<Room> {
-        const socket = this.socketController.getSocket(socketId);
+        const socket = this.socketController.getSocketWithSid(socketId);
         if (!socket) {
             throw 'socket idに対応するソケットが見つかりませんでした';
         }
@@ -42,7 +48,7 @@ class UserService implements IUserService {
     }
 
     async join(socketId: string): Promise<Room> {
-        const socket = this.socketController.getSocket(socketId);
+        const socket = this.socketController.getSocketWithSid(socketId);
         if (!socket) {
             // socketが見つからない
             throw 'socketが見つからない';
@@ -90,7 +96,8 @@ class UserService implements IUserService {
         }
         const room = this.roomRepository.getRoomFromUser(user);
         if (!room) {
-            throw 'ルームが存在しません';
+            // ルームに入っていない状態で抜ける場合はあるので、エラーは投げない
+            return;
         }
         if (room.currentGame) {
             // ゲームを強制終了して破棄
