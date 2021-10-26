@@ -1,9 +1,6 @@
 import { io } from 'socket.io-client';
 import { User } from '../../src/application/model/user';
-import {
-    onUpdateUserEvent,
-    setupUidEvent,
-} from '../../src/routes/socketEvents';
+import { updateUserEvent, setupUidEvent } from '../../src/routes/socketEvents';
 import { joinRoom } from './rooms/room';
 const socket = io();
 
@@ -26,7 +23,7 @@ socket.on('disconnect', (): void => {
     console.log('disconnect');
 });
 
-socket.on(onUpdateUserEvent.name, (user: User): void => {
+socket.on(updateUserEvent.name, (user: User): void => {
     const storage = window['localStorage'];
     storage.setItem('uid', user.uid);
 });

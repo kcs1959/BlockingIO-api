@@ -1,14 +1,14 @@
 import { Socket } from 'socket.io';
 import { userRepository, userService, gameService } from '..';
 import { User } from '../application/model/user';
-import { onUpdateUserEvent } from './socketEvents';
+import { updateUserEvent } from './socketEvents';
 
 const onConnectionEvent = (socket: Socket): void => {
     const newUser = User.generateUnknownUser();
     newUser.socketId = socket.id;
     userRepository.saveUser(newUser);
     console.log(newUser);
-    socket.emit(onUpdateUserEvent.name, newUser);
+    socket.emit(updateUserEvent.name, newUser);
 };
 
 const onDisconnectEvent = (socket: Socket): void => {
