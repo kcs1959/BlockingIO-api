@@ -10,11 +10,12 @@ import {
 import * as socketio from 'socket.io';
 import { createServer } from 'http';
 import { IUserService, UserService } from './application/services/userService';
-import { joinRoomEvent } from './routes/socketEvents';
+import { joinRoomEvent, setupUidEvent } from './routes/socketEvents';
 import {
     onConnectionEvent,
     onDisconnectEvent,
     onJoinRoomEvent,
+    onSetupUidEvent,
 } from './routes/socketEventsHandler';
 import {
     IUserRepository,
@@ -59,6 +60,14 @@ socketIOController.onConnection((socket) => {
         console.log('disconnect');
         onDisconnectEvent(socket);
     });
+
+    const onSetupUidRegistration: EventRegistration<string> = {
+        event: setupUidEvent,
+        handler: async (uid) => {
+            await onSetupUidEvent(socket, uid);
+        },
+    };
+    socketIOController.register(socket, onSetupUidRegistration);
 
     const joinRoomRegistration: EventRegistration<void> = {
         event: joinRoomEvent,
