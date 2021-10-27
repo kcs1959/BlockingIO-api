@@ -3,6 +3,7 @@ import { Player, PlayerBase } from './player';
 import { Npc } from './npc';
 import { Position } from './position';
 import * as Util from '../../common/util';
+import { Square } from './square';
 
 class Game {
     public battleField: Field;
@@ -74,18 +75,66 @@ class Game {
     private updateFieldData(): void {
         //ユーザを動かす
         this.listOfPlayer
+            // 生きているプレイヤーのみ
             .filter((p) => p.status === 'alive')
-            .forEach((p) => {
-                const pastPosition = { ...p.position };
+            // 実際に進む方向を計算する
+            .map((p) => {
                 const actualDirection = this.calcActualDirection(p);
-                p.move(actualDirection);
-                // 移動していたら前にいた場所の高さを増やす
+                return { p, actualDirection };
+            })
+            // 進む場所ごとにまとめる
+            .reduce((map, value) => {
+                const { p, actualDirection } = value;
+                let target: Position;
                 if (actualDirection !== 'stay') {
+                    target = p.getAmbientSquaresPosition()[actualDirection];
+                } else {
+                    target = p.position;
+                }
+                const list = map.get(
+                    this.battleField.squares[target.row][target.column]
+                );
+                if (list) {
+                    list.push(value);
+                } else {
+                    map.set(
+                        this.battleField.squares[target.row][target.column],
+                        [value]
+                    );
+                }
+                return map;
+            }, new Map<Square, { p: Player; actualDirection: RelativeDirection }[]>())
+            .forEach((list) => {
+                if (list.length === 1) {
+                    // 進む場所が衝突していなければそのまま進める
+                    if (list[0].actualDirection !== 'stay') {
+                        const pastPosition = list[0].p.position;
+                        this.battleField.squares[pastPosition.row][
+                            pastPosition.column
+                        ].increment();
+                    }
+                    list[0].p.move(list[0].actualDirection);
+                } else {
+                    // 衝突している中に動いていないものがあればそれを優先
+                    const stayValue = list.find(
+                        (v) => v.actualDirection === 'stay'
+                    );
+                    if (stayValue) {
+                        stayValue.p.move(stayValue.actualDirection);
+                        return;
+                    }
+                    // あとはランダムに選ばれたものだけ進める
+                    // 他は動かない
+                    const { p, actualDirection } =
+                        list[Util.getRandomInt(0, list.length - 1)];
+                    const pastPosition = p.position;
                     this.battleField.squares[pastPosition.row][
                         pastPosition.column
                     ].increment();
+                    p.move(actualDirection);
                 }
             });
+
         // NPCを動かす
         const pastPosition = { ...this.tagger.position };
         this.tagger.calcNextMove(this.battleField, this.listOfPlayer);
