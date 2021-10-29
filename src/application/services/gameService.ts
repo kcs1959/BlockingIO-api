@@ -49,6 +49,9 @@ class GameService implements IGameService {
                     newGame.onTryMove(u.uid, data);
                 },
             });
+            newGame.addFinishedListener(() => {
+                this.socketController.unregister(socket, tryMoveEvent);
+            });
         });
         return newGame;
     }
@@ -59,6 +62,10 @@ class GameService implements IGameService {
         if (room.state === 'Fulfilled') {
             const game = this.createGame(room.getUsers(), room.roomname);
             room.currentGame = game;
+            // ゲームが始まったらスタート要求を消す
+            room.getUsers().forEach((u) => {
+                u.requestingToStartGame = false;
+            });
             game.start();
         }
     }

@@ -20,6 +20,10 @@ const tryMoveEvent: SocketEvent = {
     name: 'try-move',
 };
 
+const requestAfterGameEvent: SocketEvent = {
+    name: 'request-after-game',
+};
+
 const setupUidEvent: SocketEvent = {
     name: 'setup-uid',
 };
@@ -34,6 +38,7 @@ export {
     findAvailableRoomEvent,
     updateFieldEvent,
     tryMoveEvent,
+    requestAfterGameEvent,
     setupUidEvent,
     updateUserEvent,
 };

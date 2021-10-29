@@ -33,6 +33,22 @@ const onJoinRoomEvent = async (socketId: string): Promise<void> => {
     }
 };
 
+const onRequestAfterGameEvent = async (
+    socketId: string,
+    selected: 'restart' | 'leave'
+): Promise<void> => {
+    if (selected === 'restart') {
+        const room = await userService.requestToRestartGame(socketId);
+        if (room?.getUsers()?.every((u) => u.requestingToStartGame)) {
+            // ゲームを同じ部屋で作り直す
+            room.currentGame = null;
+            gameService.startGameIfRoomIsFilled(room);
+        }
+    } else if (selected === 'leave') {
+        await userService.leave(socketId);
+    }
+};
+
 const onSetupUidEvent = async (socket: Socket, uid: string): Promise<void> => {
     console.info(`link uid (${uid}) with Socket`);
     await userService.linkUser(uid, socket);
@@ -43,4 +59,5 @@ export {
     onDisconnectEvent,
     onConnectionEvent,
     onSetupUidEvent,
+    onRequestAfterGameEvent,
 };

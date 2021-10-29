@@ -10,6 +10,7 @@ interface IUserService {
     createRoom(socketId: string): Promise<Room>;
     join(socketId: string): Promise<Room>;
     leave(socketId: string): Promise<void>;
+    requestToRestartGame(socketId: string): Promise<Room | null>;
 }
 
 class UserService implements IUserService {
@@ -105,6 +106,13 @@ class UserService implements IUserService {
             room.currentGame = null;
         }
         room.removeUser(user);
+        const socket = this.socketController.getSocketWithSid(socketId);
+        if (socket) {
+            this.socketController.leaveRoom(room.roomname, socket);
+            this.socketController.send(socket, roomStateEvent, {
+                state: 'notJoining',
+            });
+        }
         console.log(`${socketId}のユーザを${room.roomname}から削除しました`);
         console.log(room);
         if (room.state === 'Empty') {
@@ -119,6 +127,22 @@ class UserService implements IUserService {
                 room
             );
         }
+    }
+
+    async requestToRestartGame(socketId: string): Promise<Room | null> {
+        const user = this.userRepository.findUserWithSocketId(socketId);
+        if (!user) return null;
+        const room = this.roomRepository.getRoomFromUser(user);
+        if (!room || !room.currentGame || room.currentGame.state !== 'Finish')
+            return null;
+        user.requestingToStartGame = true;
+        this.socketController.sendToRoom(
+            null,
+            room.roomname,
+            roomStateEvent,
+            room
+        );
+        return room;
     }
 }
 
