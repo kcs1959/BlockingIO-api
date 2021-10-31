@@ -34,8 +34,19 @@
         line-height: 20px;
         border: 1px solid #ccc;
     }
+
+    .buttons {
+        display: flex;
+        flex-direction: row;
+    }
 </style>
 <p id="roomState"></p>
 <p id="gameState"></p>
+<div id="afterGameButtons" class="buttons">
+    <button id="restartGameButton">もう一度遊ぶ</button>
+    <button id="leaveRoomButton">ルームから抜ける</button>
+</div>
+<div id="beforeGameButtons" class="buttons">
+    <button id="joinRoomButton">ルームに入る</button>
+</div>
 <div id="field"></div>
-<button id="joinRoomButton">ルームに入る</button>

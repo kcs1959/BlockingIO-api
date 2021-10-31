@@ -17,6 +17,8 @@ class Game {
     /// 盤面の更新を伝えるリスナー
     private updateListener: GameUpdatedListener | null;
 
+    private onFinishedListeners: GameFinishedListener[] = [];
+
     private timer: NodeJS.Timer | null = null;
     private tickCount = 0;
 
@@ -75,6 +77,10 @@ class Game {
 
     clearUpdateListener(): void {
         this.updateListener = null;
+    }
+
+    addFinishedListener(listener: GameFinishedListener): void {
+        this.onFinishedListeners.push(listener);
     }
 
     /// 盤面の情報を進める
@@ -234,6 +240,9 @@ class Game {
         this.stopTimer();
         this.updateListener?.call(this, this);
         this.updateListener = null;
+        this.onFinishedListeners.forEach((listener) => {
+            listener();
+        });
     }
 
     finishGame(winner: Player | null): void {
@@ -243,6 +252,9 @@ class Game {
         this.stopTimer();
         this.updateListener?.call(this, this);
         this.updateListener = null;
+        this.onFinishedListeners.forEach((listener) => {
+            listener();
+        });
     }
 }
 
@@ -251,6 +263,7 @@ type Direction = 'up' | 'down' | 'left' | 'right';
 type RelativeDirection = 'forward' | 'left' | 'right' | 'stay';
 
 type GameUpdatedListener = (game: Game) => void;
+type GameFinishedListener = () => void;
 
 type GameState =
     | 'BeforeStart' // ゲーム開始前

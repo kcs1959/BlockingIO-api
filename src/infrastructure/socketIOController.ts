@@ -15,6 +15,7 @@ interface ISocketIOController {
         listener: Socket | Server,
         registration: EventRegistration<Response>
     ): void;
+    unregister(listener: Socket | Server, event: SocketEvent): void;
 
     // Connection
     onConnection(handler: (socket: Socket) => void): void;
@@ -41,6 +42,7 @@ interface ISocketIOController {
     createRoom(host: Socket): Promise<string>;
     removeRoom(name: string): Promise<void>;
     joinRoom(name: string, newcomer: Socket): Promise<boolean>;
+    leaveRoom(name: string, leaver: Socket): Promise<boolean>;
     releaseRoom(name: string): void;
 }
 
@@ -71,6 +73,10 @@ class SocketIOController implements ISocketIOController {
             console.log(registration.event.name);
             await registration.handler(data);
         });
+    }
+
+    unregister(listener: Socket | Server, event: SocketEvent): void {
+        listener.removeAllListeners(event.name);
     }
 
     onConnection(handler: (socket: Socket) => void): void {
@@ -147,6 +153,13 @@ class SocketIOController implements ISocketIOController {
             return false;
         }
         await newcomer.join(name);
+        return true;
+    }
+    async leaveRoom(name: string, leaver: Socket): Promise<boolean> {
+        if (!this.rooms.has(name)) {
+            return false;
+        }
+        await leaver.leave(name);
         return true;
     }
 
