@@ -45,9 +45,7 @@ function connectToGame(socket: Socket): void {
     socket.off(events.updateFieldEvent.name);
     socket.on(events.updateFieldEvent.name, (game: Game) => {
         if (game.state === 'Finish') {
-            gameStateView.innerHTML = `${game.state} winner is: ${game.winner
-                .map((p) => p.name)
-                .join()}`;
+            gameStateView.innerHTML = `${game.state} winner is: ${game.winner?.name}`;
             afterButtons.style.display = 'flex';
         } else {
             gameStateView.innerHTML = `${game.state}`;

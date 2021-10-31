@@ -12,7 +12,7 @@ class Game {
     public state: GameState;
     /// プレイヤーが勝った場合はここに追加しておく
     /// state === "Finish" 以外では無意味
-    public winner: Player[] = [];
+    public winner: Player | null = null;
 
     /// 盤面の更新を伝えるリスナー
     private updateListener: GameUpdatedListener | null;
@@ -24,6 +24,7 @@ class Game {
 
     /// ゲームの更新間隔(ms)
     private static tickInterval = 200;
+    private static maxTick = 500; // ゲームの制限時間 (*tickInterval ms)
 
     constructor(battleField: Field, listOfPlayer: Player[], tagger: Npc) {
         this.battleField = battleField;
@@ -52,8 +53,13 @@ class Game {
         this.tickCount = 0;
         // tickIntervalごとに盤面を計算し、クライアントに通知する
         this.timer = setInterval(() => {
-            console.log(`Tick ${++this.tickCount}`);
+            ++this.tickCount;
+            console.log(`Tick ${this.tickCount}`);
             this.updateFieldData();
+            // 時間が来たらゲーム終了
+            if (this.tickCount >= Game.maxTick) {
+                this.finishGame(null);
+            }
             this.updateListener?.call(this, this);
         }, Game.tickInterval);
     }
@@ -152,6 +158,8 @@ class Game {
             ].increment();
         }
 
+        // プレイヤーが死んだらゲーム終了
+        let deadFlag = false;
         this.listOfPlayer.forEach((p) => {
             if (
                 Util.calcDistance(p.position, this.tagger.position) <= 1 &&
@@ -159,11 +167,15 @@ class Game {
             ) {
                 p.status = 'dead';
                 console.log(`${p.name} is dead`);
-                if (this.listOfPlayer.every((p) => p.status === 'dead')) {
-                    this.finishGame([]);
-                }
+                deadFlag = true;
             }
         });
+        if (deadFlag) {
+            const alivePlayer = this.listOfPlayer.find(
+                (p) => p.status === 'alive'
+            );
+            this.finishGame(alivePlayer ?? null);
+        }
     }
 
     /// playerが指定した方向に移動可能かどうか、
@@ -233,7 +245,7 @@ class Game {
         });
     }
 
-    finishGame(winner: Player[]): void {
+    finishGame(winner: Player | null): void {
         this.winner = winner;
         this.state = 'Finish';
         console.log(`Game -> ${this.state}`);
