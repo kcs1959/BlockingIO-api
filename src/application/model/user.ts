@@ -5,6 +5,7 @@ export class User {
     public point: number;
     public uid: string;
     public socketId: string | null;
+    public requestingToStartGame: boolean;
     constructor(
         name: string,
         point: number,
@@ -15,6 +16,7 @@ export class User {
         this.point = point;
         this.uid = uid || uuidv4();
         this.socketId = socketId;
+        this.requestingToStartGame = true;
     }
 
     static generateUnknownUser(): User {

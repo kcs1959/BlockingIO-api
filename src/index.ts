@@ -10,11 +10,16 @@ import {
 import * as socketio from 'socket.io';
 import { createServer } from 'http';
 import { IUserService, UserService } from './application/services/userService';
-import { joinRoomEvent, setupUidEvent } from './routes/socketEvents';
+import {
+    joinRoomEvent,
+    requestAfterGameEvent,
+    setupUidEvent,
+} from './routes/socketEvents';
 import {
     onConnectionEvent,
     onDisconnectEvent,
     onJoinRoomEvent,
+    onRequestAfterGameEvent,
     onSetupUidEvent,
 } from './routes/socketEventsHandler';
 import {
@@ -76,6 +81,13 @@ socketIOController.onConnection((socket) => {
         },
     };
     socketIOController.register(socket, joinRoomRegistration);
+
+    socketIOController.register<'restart' | 'leave'>(socket, {
+        event: requestAfterGameEvent,
+        handler: async (action) => {
+            await onRequestAfterGameEvent(socket.id, action);
+        },
+    });
 });
 
 httpServer.listen(config.PORT, () => {
