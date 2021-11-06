@@ -10,11 +10,17 @@ import {
 import * as socketio from 'socket.io';
 import { createServer } from 'http';
 import { IUserService, UserService } from './application/services/userService';
-import { joinRoomEvent } from './routes/socketEvents';
+import {
+    joinRoomEvent,
+    requestAfterGameEvent,
+    setupUidEvent,
+} from './routes/socketEvents';
 import {
     onConnectionEvent,
     onDisconnectEvent,
     onJoinRoomEvent,
+    onRequestAfterGameEvent,
+    onSetupUidEvent,
 } from './routes/socketEventsHandler';
 import {
     IUserRepository,
@@ -60,6 +66,14 @@ socketIOController.onConnection((socket) => {
         onDisconnectEvent(socket);
     });
 
+    const onSetupUidRegistration: EventRegistration<string> = {
+        event: setupUidEvent,
+        handler: async (uid) => {
+            await onSetupUidEvent(socket, uid);
+        },
+    };
+    socketIOController.register(socket, onSetupUidRegistration);
+
     const joinRoomRegistration: EventRegistration<void> = {
         event: joinRoomEvent,
         handler: async () => {
@@ -69,6 +83,13 @@ socketIOController.onConnection((socket) => {
 
     // index.tsのjoinRoomでemitされた「joinRoomEvent」を受け取るとsocketIOControllerのlistener.onの中身が呼ばれる
     socketIOController.register(socket, joinRoomRegistration);
+
+    socketIOController.register<'restart' | 'leave'>(socket, {
+        event: requestAfterGameEvent,
+        handler: async (action) => {
+            await onRequestAfterGameEvent(socket.id, action);
+        },
+    });
 });
 
 httpServer.listen(config.PORT, () => {

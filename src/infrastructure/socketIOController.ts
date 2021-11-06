@@ -15,13 +15,18 @@ interface ISocketIOController {
         listener: Socket | Server,
         registration: EventRegistration<Response>
     ): void;
+    unregister(listener: Socket | Server, event: SocketEvent): void;
 
     // Connection
     onConnection(handler: (socket: Socket) => void): void;
     onDisconnect(socket: Socket, handler: () => void): void;
 
+    // ユーザーのuidとSocketを紐づける
+    link(uid: string, socket: Socket): void;
+
     // Socket
-    getSocket(id: string): Socket | null;
+    getSocketWithUid(uid: string): Socket | null;
+    getSocketWithSid(sid: string): Socket | null;
 
     // Send
     send<Data>(sender: Socket, event: SocketEvent, data: Data): boolean;
@@ -37,11 +42,16 @@ interface ISocketIOController {
     createRoom(host: Socket): Promise<string>;
     removeRoom(name: string): Promise<void>;
     joinRoom(name: string, newcomer: Socket): Promise<boolean>;
+    leaveRoom(name: string, leaver: Socket): Promise<boolean>;
     releaseRoom(name: string): void;
 }
 
 class SocketIOController implements ISocketIOController {
     io: Server;
+    /// ユーザー情報とリンクされているSocketsが格納されている
+    /// keyはデータベースに保存されているuidに対応
+    linkedSockets: Map<string, Socket>;
+    /// ユーザー情報とリンクされていないSocketsが格納されている
     sockets: Socket[];
     rooms: Set<string>;
 
@@ -49,6 +59,7 @@ class SocketIOController implements ISocketIOController {
 
     constructor(io: Server) {
         this.io = io;
+        this.linkedSockets = new Map();
         this.sockets = [];
         this.rooms = new Set();
         this.roomIndex = 0;
@@ -62,6 +73,10 @@ class SocketIOController implements ISocketIOController {
             console.log(registration.event.name);
             await registration.handler(data);
         });
+    }
+
+    unregister(listener: Socket | Server, event: SocketEvent): void {
+        listener.removeAllListeners(event.name);
     }
 
     onConnection(handler: (socket: Socket) => void): void {
@@ -78,8 +93,20 @@ class SocketIOController implements ISocketIOController {
         });
     }
 
-    getSocket(id: string): Socket | null {
-        const socket = this.sockets.find((socket) => socket.id === id);
+    link(uid: string, socket: Socket): void {
+        this.linkedSockets.set(uid, socket);
+    }
+
+    getSocketWithSid(sid: string): Socket | null {
+        const socket = this.sockets.find((socket) => socket.id === sid);
+        if (!socket) {
+            return null;
+        }
+        return socket;
+    }
+
+    getSocketWithUid(uid: string): Socket | null {
+        const socket = this.linkedSockets.get(uid);
         if (!socket) {
             return null;
         }
@@ -126,6 +153,13 @@ class SocketIOController implements ISocketIOController {
             return false;
         }
         await newcomer.join(name);
+        return true;
+    }
+    async leaveRoom(name: string, leaver: Socket): Promise<boolean> {
+        if (!this.rooms.has(name)) {
+            return false;
+        }
+        await leaver.leave(name);
         return true;
     }
 

@@ -9,13 +9,44 @@
     }
 
     .player {
-        color: red;
+        background-color: red;
     }
 
     .tagger {
-        color: blue;
+        background-color: blue;
+    }
+
+    #field-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .field-row {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .field-cell {
+        font-size: 13px;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        border: 1px solid #ccc;
+    }
+
+    .buttons {
+        display: flex;
+        flex-direction: row;
     }
 </style>
 <p id="roomState"></p>
-<p id="field"></p>
-<button id="joinRoomButton">ルームに入る</button>
+<p id="gameState"></p>
+<div id="afterGameButtons" class="buttons">
+    <button id="restartGameButton">もう一度遊ぶ</button>
+    <button id="leaveRoomButton">ルームから抜ける</button>
+</div>
+<div id="beforeGameButtons" class="buttons">
+    <button id="joinRoomButton">ルームに入る</button>
+</div>
+<div id="field"></div>

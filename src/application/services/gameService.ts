@@ -22,9 +22,9 @@ class GameService implements IGameService {
     /// ゲームを作成、初期化する
     createGame(users: User[], roomName: string): Game {
         assert(users.length === 2);
-        const player1 = new Player(users[0], { x: 1, y: 1 });
-        const player2 = new Player(users[1], { x: 8, y: 8 });
-        const npc = new Npc('鬼', { x: 1, y: 8 });
+        const player1 = new Player(users[0], { row: 1, column: 1 }, 'down');
+        const player2 = new Player(users[1], { row: 8, column: 8 }, 'down');
+        const npc = new Npc('鬼', { row: 1, column: 8 }, 'down');
 
         const field = new Field(32);
 
@@ -41,13 +41,16 @@ class GameService implements IGameService {
         users.forEach((u) => {
             const socketId = u.socketId;
             if (!socketId) return;
-            const socket = this.socketController.getSocket(socketId);
+            const socket = this.socketController.getSocketWithSid(socketId);
             if (!socket) return;
             this.socketController.register(socket, {
                 event: tryMoveEvent,
                 handler: async (data: Direction) => {
                     newGame.onTryMove(u.uid, data);
                 },
+            });
+            newGame.addFinishedListener(() => {
+                this.socketController.unregister(socket, tryMoveEvent);
             });
         });
         return newGame;
@@ -59,6 +62,10 @@ class GameService implements IGameService {
         if (room.state === 'Fulfilled') {
             const game = this.createGame(room.getUsers(), room.roomname);
             room.currentGame = game;
+            // ゲームが始まったらスタート要求を消す
+            room.getUsers().forEach((u) => {
+                u.requestingToStartGame = false;
+            });
             game.start();
         }
     }

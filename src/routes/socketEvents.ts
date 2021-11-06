@@ -20,10 +20,25 @@ const tryMoveEvent: SocketEvent = {
     name: 'try-move',
 };
 
+const requestAfterGameEvent: SocketEvent = {
+    name: 'request-after-game',
+};
+
+const setupUidEvent: SocketEvent = {
+    name: 'setup-uid',
+};
+
+const updateUserEvent: SocketEvent = {
+    name: 'on-update-user',
+};
+
 export {
     joinRoomEvent,
     roomStateEvent,
     findAvailableRoomEvent,
     updateFieldEvent,
     tryMoveEvent,
+    requestAfterGameEvent,
+    setupUidEvent,
+    updateUserEvent,
 };

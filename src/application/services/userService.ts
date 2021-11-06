@@ -3,11 +3,14 @@ import { roomStateEvent } from '../../routes/socketEvents';
 import { IUserRepository } from '../repositories/userRepository';
 import { IRoomRepository } from '../repositories/roomRepository';
 import { Room } from '../model/room';
+import { Socket } from 'socket.io';
 
 interface IUserService {
+    linkUser(uid: string, socket: Socket): Promise<void>;
     createRoom(socketId: string): Promise<Room>;
     join(socketId: string): Promise<Room>;
     leave(socketId: string): Promise<void>;
+    requestToRestartGame(socketId: string): Promise<Room | null>;
 }
 
 class UserService implements IUserService {
@@ -25,8 +28,12 @@ class UserService implements IUserService {
         this.roomRepository = roomRepository;
     }
 
+    async linkUser(uid: string, socket: Socket): Promise<void> {
+        this.socketController.link(uid, socket);
+    }
+
     async createRoom(socketId: string): Promise<Room> {
-        const socket = this.socketController.getSocket(socketId);
+        const socket = this.socketController.getSocketWithSid(socketId);
         if (!socket) {
             throw 'socket idに対応するソケットが見つかりませんでした';
         }
@@ -42,7 +49,7 @@ class UserService implements IUserService {
     }
 
     async join(socketId: string): Promise<Room> {
-        const socket = this.socketController.getSocket(socketId);
+        const socket = this.socketController.getSocketWithSid(socketId);
         if (!socket) {
             // socketが見つからない
             throw 'socketが見つからない';
@@ -90,7 +97,8 @@ class UserService implements IUserService {
         }
         const room = this.roomRepository.getRoomFromUser(user);
         if (!room) {
-            throw 'ルームが存在しません';
+            // ルームに入っていない状態で抜ける場合はあるので、エラーは投げない
+            return;
         }
         if (room.currentGame) {
             // ゲームを強制終了して破棄
@@ -98,6 +106,13 @@ class UserService implements IUserService {
             room.currentGame = null;
         }
         room.removeUser(user);
+        const socket = this.socketController.getSocketWithSid(socketId);
+        if (socket) {
+            this.socketController.leaveRoom(room.roomname, socket);
+            this.socketController.send(socket, roomStateEvent, {
+                state: 'notJoining',
+            });
+        }
         console.log(`${socketId}のユーザを${room.roomname}から削除しました`);
         console.log(room);
         if (room.state === 'Empty') {
@@ -112,6 +127,22 @@ class UserService implements IUserService {
                 room
             );
         }
+    }
+
+    async requestToRestartGame(socketId: string): Promise<Room | null> {
+        const user = this.userRepository.findUserWithSocketId(socketId);
+        if (!user) return null;
+        const room = this.roomRepository.getRoomFromUser(user);
+        if (!room || !room.currentGame || room.currentGame.state !== 'Finish')
+            return null;
+        user.requestingToStartGame = true;
+        this.socketController.sendToRoom(
+            null,
+            room.roomname,
+            roomStateEvent,
+            room
+        );
+        return room;
     }
 }
 
