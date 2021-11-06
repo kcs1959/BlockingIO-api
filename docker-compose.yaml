@@ -12,4 +12,4 @@ services:
             - '${DB_PORT}:5432'
         volumes:
             - ./migration:/docker-entrypoint-initdb.d
-            - '${HOME}'
+            - ./postgres:/var/lib/postgresql/data
