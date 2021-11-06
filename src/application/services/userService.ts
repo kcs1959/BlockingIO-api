@@ -115,7 +115,8 @@ class UserService implements IUserService {
         }
         console.log(`${socketId}のユーザを${room.roomname}から削除しました`);
         console.log(room);
-        if (room.state === 'Empty') {
+        const allUsers = room.getUsers();
+        if (room.state === 'Empty' || allUsers.length < 2) {
             console.log(`ルーム: ${room.roomname}を破棄します`);
             await this.socketController.removeRoom(room.roomname);
             this.roomRepository.deleteRoom(room);
