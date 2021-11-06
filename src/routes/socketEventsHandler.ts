@@ -12,7 +12,7 @@ const onConnectionEvent = (socket: Socket): void => {
 };
 
 const onDisconnectEvent = (socket: Socket): void => {
-    userService.leave(socket.id);    
+    userService.leave(socket.id);
 };
 
 const onJoinRoomEvent = async (socketId: string): Promise<void> => {
