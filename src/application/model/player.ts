@@ -1,5 +1,6 @@
 type PlayerStatus = 'alive' | 'dead';
 
+import { Field } from './field';
 import { Direction, RelativeDirection } from './game';
 import { Position } from './position';
 
@@ -47,26 +48,51 @@ class PlayerBase {
         return { forward, left, right };
     }
 
-    // 相対的な方向に移動し、directionを更新する
-    move(relativeDirection: RelativeDirection): void {
+    /// 相対的な方向に移動し、directionを更新する
+    /// return 移動した高さ
+    move(relativeDirection: RelativeDirection, field: Field): number {
         if (relativeDirection === 'stay') {
             // 移動できない場合は向きを反対にして次のときに再試行
             this.direction = this.getBackDiretion();
-            return;
+            return 0;
         }
+        const currentHeight =
+            field.squares[this.position.row][this.position.column].height;
+        console.log(`currentHeight: ${currentHeight}`);
         const { forward, left, right } = this.getAmbientSquaresPosition();
         switch (relativeDirection) {
             case 'forward':
                 this.position = forward;
-                break;
+                console.log(
+                    `forwardHeight:${
+                        field.squares[forward.row][forward.column].height
+                    }`
+                );
+                return (
+                    field.squares[forward.row][forward.column].height -
+                    currentHeight
+                );
             case 'left':
                 this.position = left;
                 this.direction = this.getLeftDiretion();
-                break;
+                console.log(
+                    `leftHeight:${field.squares[left.row][left.column].height}`
+                );
+                return (
+                    field.squares[left.row][left.column].height - currentHeight
+                );
             case 'right':
                 this.position = right;
                 this.direction = this.getRightDiretion();
-                break;
+                console.log(
+                    `rightHeight:${
+                        field.squares[right.row][right.column].height
+                    }`
+                );
+                return (
+                    field.squares[right.row][right.column].height -
+                    currentHeight
+                );
         }
     }
 
@@ -121,6 +147,15 @@ class Player extends PlayerBase {
         this.uid = user.uid;
         this.name = user.name;
         this.status = 'alive';
+    }
+
+    override move(relativeDirection: RelativeDirection, field: Field): number {
+        const height = super.move(relativeDirection, field);
+        console.log(`${this.name} moved ${height}`);
+        if (height <= -2) {
+            this.status = 'dead';
+        }
+        return height;
     }
 }
 
