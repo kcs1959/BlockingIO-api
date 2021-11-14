@@ -166,7 +166,7 @@ class Game {
         this.listOfPlayer.forEach((p) => {
             if (
                 Util.calcDistance(p.position, this.tagger.position) <= 1 &&
-                this.isReachable(p.position, this.tagger.position)
+                this.isReachable(this.tagger.position, p.position)
             ) {
                 p.status = 'dead';
                 console.log(`${p.name} is dead`);
