@@ -7,6 +7,7 @@ import { Npc } from '../model/npc';
 import { Player } from '../model/player';
 import { Room } from '../model/room';
 import { User } from '../model/user';
+import { getRandomInt, calcDistance } from '../../common/util';
 
 interface IGameService {
     createGame(users: User[], roomName: string): Game;
@@ -22,11 +23,45 @@ class GameService implements IGameService {
     /// ゲームを作成、初期化する
     createGame(users: User[], roomName: string): Game {
         assert(users.length === 2);
-        const player1 = new Player(users[0], { row: 1, column: 1 }, 'down');
-        const player2 = new Player(users[1], { row: 8, column: 8 }, 'down');
-        const npc = new Npc('鬼', { row: 1, column: 8 }, 'down');
+        const fieldSize = 32;
+        // 場所がいい感じに離れるように乱数を決める
+        const npcPosition = {
+            row: getRandomInt(0, fieldSize),
+            column: getRandomInt(0, fieldSize),
+        };
+        let player1Position = {
+            row: getRandomInt(0, fieldSize),
+            column: getRandomInt(0, fieldSize),
+        };
+        while (calcDistance(npcPosition, player1Position) < 10) {
+            player1Position = {
+                row: getRandomInt(0, fieldSize),
+                column: getRandomInt(0, fieldSize),
+            };
+        }
+        let player2Position = {
+            row: getRandomInt(0, fieldSize),
+            column: getRandomInt(0, fieldSize),
+        };
+        while (
+            calcDistance(npcPosition, player2Position) < 10 ||
+            calcDistance(player1Position, player2Position) < 10
+        ) {
+            player2Position = {
+                row: getRandomInt(0, fieldSize),
+                column: getRandomInt(0, fieldSize),
+            };
+        }
+        // かわいそうなので最初の向きはnpcの居ない方向にする
+        const player1Direction =
+            player1Position.row > npcPosition.row ? 'down' : 'up';
+        const player2Direction =
+            player2Position.row > npcPosition.row ? 'down' : 'up';
+        const player1 = new Player(users[0], player1Position, player1Direction);
+        const player2 = new Player(users[1], player2Position, player2Direction);
+        const npc = new Npc('鬼', npcPosition, 'down');
 
-        const field = new Field(32);
+        const field = new Field(fieldSize);
 
         const newGame = new Game(field, [player1, player2], npc);
         newGame.setUpdateListener((game) => {
