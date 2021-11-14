@@ -174,7 +174,7 @@ class Game {
                 // taggerと衝突してゲームが終了するか確認
                 if (
                     Util.calcDistance(p.position, this.tagger.position) <= 1 &&
-                    this.isReachable(p.position, this.tagger.position)
+                    this.isReachable(this.tagger.position, p.position)
                 ) {
                     p.status = 'dead';
                     this.finishReason = 'Collision';
