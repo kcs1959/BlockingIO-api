@@ -39,6 +39,7 @@ class Game {
     start(): void {
         this.state = 'PendingStart';
         console.log(`Game -> ${this.state}`);
+        this.updateListener?.call(this, this);
         setTimeout(() => {
             this.state = 'InGame';
             this.startTimer();
