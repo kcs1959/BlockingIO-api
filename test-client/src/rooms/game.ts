@@ -41,11 +41,25 @@ const tryMove = (socket: Socket, data: Direction): void => {
     socket.emit(events.tryMoveEvent.name, data);
 };
 
+function getMyUid(): string | null {
+    const storage = window['localStorage'];
+    const uid = storage.getItem('uid');
+    return uid;
+}
+
 function connectToGame(socket: Socket): void {
     socket.off(events.updateFieldEvent.name);
     socket.on(events.updateFieldEvent.name, (game: Game) => {
         if (game.state === 'Finish') {
-            gameStateView.innerHTML = `${game.state} winner is: ${game.winner?.name}`;
+            console.log(game.winner);
+            console.log(`uid: ${getMyUid()}`);
+            if (game.winner?.uid === getMyUid()) {
+                gameStateView.innerHTML = `${game.state} You win!`;
+            } else if (game.winner) {
+                gameStateView.innerHTML = `${game.state} You lose!`;
+            } else {
+                gameStateView.innerHTML = `${game.state} Draw!`;
+            }
             afterButtons.style.display = 'flex';
         } else {
             gameStateView.innerHTML = `${game.state}`;

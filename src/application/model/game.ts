@@ -13,6 +13,7 @@ class Game {
     /// プレイヤーが勝った場合はここに追加しておく
     /// state === "Finish" 以外では無意味
     public winner: Player | null = null;
+    public finishReason: GameFinishReason | null = null;
 
     /// 盤面の更新を伝えるリスナー
     private updateListener: GameUpdatedListener | null;
@@ -24,7 +25,7 @@ class Game {
 
     /// ゲームの更新間隔(ms)
     private static tickInterval = 200;
-    private static maxTick = 500; // ゲームの制限時間 (*tickInterval ms)
+    private readonly maxTick = 500; // ゲームの制限時間 (*tickInterval ms)
 
     constructor(battleField: Field, listOfPlayer: Player[], tagger: Npc) {
         this.battleField = battleField;
@@ -58,7 +59,8 @@ class Game {
             console.log(`Tick ${this.tickCount}`);
             this.updateFieldData();
             // 時間が来たらゲーム終了
-            if (this.tickCount >= Game.maxTick) {
+            if (this.tickCount >= this.maxTick) {
+                this.finishReason = 'Timeup';
                 this.finishGame(null);
             }
             this.updateListener?.call(this, this);
@@ -120,20 +122,23 @@ class Game {
             .forEach((list) => {
                 if (list.length === 1) {
                     // 進む場所が衝突していなければそのまま進める
+                    const pastPosition = list[0].p.position;
+                    list[0].p.move(list[0].actualDirection, this.battleField);
                     if (list[0].actualDirection !== 'stay') {
-                        const pastPosition = list[0].p.position;
                         this.battleField.squares[pastPosition.row][
                             pastPosition.column
                         ].increment();
                     }
-                    list[0].p.move(list[0].actualDirection);
                 } else {
                     // 衝突している中に動いていないものがあればそれを優先
                     const stayValue = list.find(
                         (v) => v.actualDirection === 'stay'
                     );
                     if (stayValue) {
-                        stayValue.p.move(stayValue.actualDirection);
+                        stayValue.p.move(
+                            stayValue.actualDirection,
+                            this.battleField
+                        );
                         return;
                     }
                     // あとはランダムに選ばれたものだけ進める
@@ -141,10 +146,10 @@ class Game {
                     const { p, actualDirection } =
                         list[Util.getRandomInt(0, list.length - 1)];
                     const pastPosition = p.position;
+                    p.move(actualDirection, this.battleField);
                     this.battleField.squares[pastPosition.row][
                         pastPosition.column
                     ].increment();
-                    p.move(actualDirection);
                 }
             });
 
@@ -152,7 +157,7 @@ class Game {
         const pastPosition = { ...this.tagger.position };
         this.tagger.calcNextMove(this.battleField, this.listOfPlayer);
         const actual = this.calcActualDirection(this.tagger);
-        this.tagger.move(actual);
+        this.tagger.move(actual, this.battleField);
         if (actual !== 'stay') {
             this.battleField.squares[pastPosition.row][
                 pastPosition.column
@@ -162,13 +167,21 @@ class Game {
         // プレイヤーが死んだらゲーム終了
         let deadFlag = false;
         this.listOfPlayer.forEach((p) => {
-            if (
-                Util.calcDistance(p.position, this.tagger.position) <= 1 &&
-                this.isReachable(p.position, this.tagger.position)
-            ) {
-                p.status = 'dead';
-                console.log(`${p.name} is dead`);
+            // 高いところから落ちた場合のゲーム終了処理
+            if (p.status == 'dead') {
+                this.finishReason = 'Fall';
                 deadFlag = true;
+            } else {
+                // taggerと衝突してゲームが終了するか確認
+                if (
+                    Util.calcDistance(p.position, this.tagger.position) <= 1 &&
+                    this.isReachable(this.tagger.position, p.position)
+                ) {
+                    p.status = 'dead';
+                    this.finishReason = 'Collision';
+                    console.log(`${p.name} is dead`);
+                    deadFlag = true;
+                }
             }
         });
         if (deadFlag) {
@@ -202,6 +215,7 @@ class Game {
     }
 
     /// targetにコマが到達可能かどうか
+    /// 落ちるとしてもそれは到達可能
     private isReachable(current: Position, target: Position): boolean {
         if (
             target.row < 0 ||
@@ -215,7 +229,8 @@ class Game {
             this.battleField.squares[current.row][current.column];
         const targetSquare =
             this.battleField.squares[target.row][target.column];
-        return Math.abs(currentSquare.height - targetSquare.height) <= 1;
+        // 2個以上高い場合は到達不可
+        return targetSquare.height - currentSquare.height <= 1;
     }
 
     /// ユーザ側から操作を受け付ける関数
@@ -272,5 +287,7 @@ type GameState =
     | 'InGame' // ゲーム中
     | 'Finish' // ゲームが正常終了した場合
     | 'AbnormalEnd'; // ユーザが退出するなどの理由でゲームが終了した場合
+
+type GameFinishReason = 'Fall' | 'Collision' | 'Timeup';
 
 export { Game, Direction, RelativeDirection, GameUpdatedListener };
