@@ -118,6 +118,19 @@ class UserService implements IUserService {
         const allUsers = room.getUsers();
         if (room.state === 'Empty' || allUsers.length < 2) {
             console.log(`ルーム: ${room.roomname}を破棄します`);
+            // 人が残ってたら抜けることを通知する
+            const leftUser = allUsers.length > 0 ? allUsers[0] : null;
+            if (leftUser) {
+                const socket = this.socketController.getSocketWithSid(
+                    leftUser.socketId ?? ''
+                );
+                if (socket) {
+                    this.socketController.leaveRoom(room.roomname, socket);
+                    this.socketController.send(socket, roomStateEvent, {
+                        state: 'notJoining',
+                    });
+                }
+            }
             await this.socketController.removeRoom(room.roomname);
             this.roomRepository.deleteRoom(room);
         } else {
